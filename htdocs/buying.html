@@ -1,0 +1,122 @@
+<html>
+<head>
+    <title>Buying | WOC Example</title>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="/js/main.js"></script>
+</head>
+
+<body>
+    <h1>Wall of Coins Buying Example</h1>
+    <blockquote>
+        <p>
+            This area illustrates the API calls to buy coins from Wall of 
+            Coins. The HTML is simply an example View; your application will
+            replace this View, while the Javascript object &quot;Woc.Buy&quot;
+            provides a working example to interact with the WOC API.
+        </p>
+
+        <p>
+            A work-flow diagram chart is available for certain processes. The
+            first chart illustrates the overall process:
+            <a href="/img/overall-buying-process.png" target="_blank">Overall
+            Buying Process</a>
+        </p>
+    </blockquote>
+
+    <h2>Step 0: API credentials</h2>
+    <blockquote>
+        <p>
+        API credentials are not required; however, API credentials will credit
+        you for any coin purchases made through your application's Wall of 
+        Coins integration.
+        </p>
+
+        <p>
+            API Endpoint: <input id="apiUrl" type="text" value="http://dev.geni.to:8000" />
+                <br/>
+            The base URL of the API.
+        </p>
+
+        <p>
+            API user id: <input id="apiUserId" type="text" />
+                <br/>
+            Another acceptable value is a bitcoin address. (should the only
+            acceptable value be a bitcoin referral address?)
+        </p>
+    </blockquote>
+
+    <h2>Step 1: Collect User Input</h2>
+    <blockquote>
+        <p>User Bitcoin Address: <input id="bitcoinAddress" type="text" /></p>
+        <p>
+            <select id="currency">
+                <option value="USD" selected="selected">$</option>
+            </select>
+            <input id="usdAmount" type="tel" value="5" />
+        </p>
+    </blockquote>
+
+    <h2>Step 2: Location Input</h2>
+    <blockquote>
+        <p>
+            Only one of the following location ("destination") pieces of
+            information are required.
+        </p>
+
+        <p>
+            Geo-coordinates:
+            <input id="geolocation" type="text" value="(waiting on permission)"
+                readonly="readonly" />
+            <br/>
+            Geo-coordinates of location: required unless the zip/postal code or
+            bank destination are specified.
+        </p>
+
+        <p>
+            Zip Code:
+            <input id="zipCode" type="tel" value="" />
+        </p>
+
+        <p>
+            Deposit Destination (Bank):
+            <select id="banks" style="display:none;">
+            </select>
+
+            <button id="queryBanksBtn">Query Banks</button>
+                <br/>
+            You must click "Query Banks" to get a list of banks from the API.
+        </p>
+    </blockquote>
+
+    <h2>Step 3: Submit Results to Discover Purchase Options</h2>
+    <blockquote>
+        <p>
+            <button id="discoverBtn">Discover Purchase Options</button>
+        </p>
+    </blockquote>
+
+    <h2>Step 4: Collect User's Purchase Choice</h2>
+    <blockquote>
+        <div id="offersNeededCtn">
+            <p>(First: you need purchase options from the API's discovered
+                results.)</p>
+        </div>
+
+        <div id="offersCtn" style="display:none;">
+            <p>Discovering results...</p>
+        </div>
+    </blockquote>
+
+    <h2>Step 5: Check If User is Authorized</h2>
+
+    <h2>Step 6: Place a Temporary Hold on the Order</h2>
+
+    <h2>Step 7: Capture the Hold</h2>
+
+    <h2>Step 8: Render Buying Instructions</h2>
+
+<script>
+    $(Woc.Buy.init);
+</script>
+</body>
+</html>
