@@ -5,7 +5,7 @@ Woc.Api = (function() {
 
     me.init = function() {
         me.url = $('#apiUrl').val();
-        me.user = $('#apiUserId').val();
+        me.publisher = $('#publisherId').val();
     };
 
     return me;
@@ -52,6 +52,10 @@ Woc.Buy = (function() {
         div = $('#' + div);
 
         $.get(url).success(function(data) {
+            var results = data.singleDeposit.length > 0 ||
+                data.doubleDeposit.length > 0 ||
+                data.multipleBanks.length > 0;
+
             if (data.singleDeposit.length > 0) {
                 div.append('<p><strong>Single Deposit Options:</strong></p>');
                 $.each(data.singleDeposit, function(i, obj) {
@@ -79,9 +83,24 @@ Woc.Buy = (function() {
                         obj.id + '">' + label + '<br/>');
                 });
             }
+
+            if (results) {
+                $('#offerResultActions').show();
+            }
         })
         .error(function() {
             console.log('getOffers: error');
+        });
+    };
+
+    /**
+     * Authorize the WOC user to add a device to their account.
+     */
+    var authorizePhone = function(phone) {
+        $.post(Woc.Api.url + '/api/v1/auth/' + phone + '/authorize/', {
+            'password': $('#wocPassword').val()
+        }, function(data) {
+            console.log('data:', data);
         });
     };
 
@@ -115,6 +134,71 @@ Woc.Buy = (function() {
                 else {
                     $('#discoverBtn').removeAttr('disabled');
                     $('#discoveryErrorCtn').show();
+                }
+            });
+
+            return false;
+        });
+
+        $('#nextStepBtn').click(function() {
+            $(this).attr('disabled', 'disabled');
+            $('#authStep').show();
+            return false;
+        });
+
+        $('#holdOrderBtn').click(function() {
+            var phone = $('#countryCode').val() + $('#userPhone').val();
+            // we have a user password, so authenticate the user to add this
+            // application as a device.
+            if ($('#wocPassword:visible').length > 0) {
+                authorizePhone(phone);
+                return false;
+            }
+
+            var offerId = $('input[type=radio][name=offer]').val();
+            $('#holdOrderBtn').attr('disabled', 'disabled');
+
+            // Attempt to create a brand new user with this first purchase.
+            // TODO: should this API command automatically log in the user?
+            // or should the API first use the stored token / credentials to
+            // determine if the phone/device needs to be resent?
+            $.ajax({
+                url: Woc.Api.url + '/api/v1/holds/',
+                data: {
+                    'offer': offerId,
+                    'email': $('#email').val(),
+                    'phone': phone,
+                    // If the user does not exist, the device must create a
+                    // blank user password.
+                    'password': '',
+                    'device': $('#deviceId').val()
+                },
+                type: 'POST',
+                statusCode: {
+                    403: function() {
+                        // Forbidden means that we need the user's Wall of
+                        // Coins password in order to use this phone number.
+                        // Doh!
+                        $('#holdOrderBtn').removeAttr('disabled');
+//                        alert('need WOC password');
+//                        $('#wocPasswordCtn').show();
+//                        $('#wocPassword').focus();
+                    },
+                    400: function() {
+                        // Bad Request means that we need the user's Wall of
+                        // Coins password in order to authorize a 3rd party
+                        // device access to use this phone number.
+                        $('#holdOrderBtn').removeAttr('disabled');
+                        $('#wocPasswordCtn').show();
+                        $('#wocPassword').focus();
+                    },
+                    200: function() {
+                        alert('everything was normal');
+                        $('#captureHoldStep').show();
+                    }
+                },
+                success: function(data) {
+                    alert('success');
                 }
             });
 
