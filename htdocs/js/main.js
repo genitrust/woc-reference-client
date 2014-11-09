@@ -179,7 +179,8 @@ Woc.Buy = (function() {
                 // If the user does not exist, the device must create a blank
                 // user password.
                 postData.password = '';
-                postData.device = $('#deviceId').val();
+                postData.deviceCode = $('#deviceCode').val();
+                postData.deviceName = $('#deviceName').val();
             }
 
             // Attempt to create a brand new user with this first purchase.
@@ -195,7 +196,6 @@ Woc.Buy = (function() {
                         // Forbidden means that we need the user's Wall of
                         // Coins password in order to use this phone number.
                         // Doh!
-                        $('#holdOrderBtn').removeAttr('disabled');
                         alert('what is wrong? is token invalid?');
 //                        alert('need WOC password');
 //                        $('#wocPasswordCtn').show();
@@ -205,7 +205,6 @@ Woc.Buy = (function() {
                         // Bad Request means that we need the user's Wall of
                         // Coins password in order to authorize a 3rd party
                         // device access to use this phone number.
-                        $('#holdOrderBtn').removeAttr('disabled');
                         $('#wocPasswordCtn').show();
                         $('#wocPassword').focus();
                     },
@@ -215,10 +214,14 @@ Woc.Buy = (function() {
                     }
                 },
                 success: function(data) {
-                    alert('success');
+                    $('#captureHoldStep').show();
                 }
             });
 
+            return false;
+        });
+
+        $('#captureHoldBtn').click(function() {
             return false;
         });
     };
