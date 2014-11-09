@@ -89,7 +89,7 @@ Woc.Buy = (function() {
             }
         })
         .error(function() {
-            console.log('getOffers: error');
+            alert('getOffers: error');
         });
     };
 
@@ -100,6 +100,7 @@ Woc.Buy = (function() {
         $.post(Woc.Api.url + '/api/v1/auth/' + phone + '/authorize/', {
             'password': $('#wocPassword').val()
         }, function(data) {
+            console.log('need a token to pass to the Hold API');
             console.log('data:', data);
         });
     };
@@ -155,8 +156,31 @@ Woc.Buy = (function() {
                 return false;
             }
 
-            var offerId = $('input[type=radio][name=offer]').val();
             $('#holdOrderBtn').attr('disabled', 'disabled');
+
+            // default POST data
+            var postData = {
+                'offer': $('input[type=radio][name=offer]').val(),
+                // An email can always be provided by the user. Emails have
+                // nothing to do with the user "account"; they just may be
+                // useful to Wall of Coins in the future for Order receipts
+                // or other imaginable purposes.
+                'email':  $('#email').val(),
+                'phone': phone
+            };
+
+            var token = $('#authToken').val();
+            if (token) {
+                // TODO: if we have an authenticated token, attach it to our
+                // POST parameters.
+                postData.token = token;
+            }
+            else {
+                // If the user does not exist, the device must create a blank
+                // user password.
+                postData.password = '';
+                postData.device = $('#deviceId').val();
+            }
 
             // Attempt to create a brand new user with this first purchase.
             // TODO: should this API command automatically log in the user?
@@ -164,15 +188,7 @@ Woc.Buy = (function() {
             // determine if the phone/device needs to be resent?
             $.ajax({
                 url: Woc.Api.url + '/api/v1/holds/',
-                data: {
-                    'offer': offerId,
-                    'email': $('#email').val(),
-                    'phone': phone,
-                    // If the user does not exist, the device must create a
-                    // blank user password.
-                    'password': '',
-                    'device': $('#deviceId').val()
-                },
+                data: postData,
                 type: 'POST',
                 statusCode: {
                     403: function() {
@@ -180,6 +196,7 @@ Woc.Buy = (function() {
                         // Coins password in order to use this phone number.
                         // Doh!
                         $('#holdOrderBtn').removeAttr('disabled');
+                        alert('what is wrong? is token invalid?');
 //                        alert('need WOC password');
 //                        $('#wocPasswordCtn').show();
 //                        $('#wocPassword').focus();

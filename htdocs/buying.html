@@ -151,27 +151,31 @@
             the end user and Wall of Coins.
         </p>
 
-        <p id="wocPasswordCtn" style="display:none;">
-            <h3>User (Phone) Exists and Must Authorize</h3>
+        <div id="supplyTokenCtn" style="display:none;">
+            <p>
+                Use the <a href="authorization.html">Authorization</a> page to
+                obtain an authentication token for the end user. If you already
+                have an authorization token, pass it in the field below, and
+                the API will let you know whether that token is still valid.
+            </p>
 
-            Wall of Coins user password:
-            <input id="wocPassword" type="password" value="" />
-                <br/>
-            When the user already has a Wall of Coins account, this is the
-            point where they will learn that the application is integrating
-            with Wall of Coins. Users will be thrilled that they can use your
-            app directly with WOC! But we will experiment with asking the
-            user for their WOC password.
-        </p>
+            <p>Token: <input id="authToken" type="text" value="" /></p>
+        </div>
 
-<!--
-        <p>Use the <a href="authorization.html">Authorization</a> page to
-            obtain an authentication token for the end user. If you already
-            have an authorization token, pass it in the field below, and the
-            API will let you know whether that token is still valid.</p>
+        <div id="wocPasswordCtn" style="display:none;">
+            <p>
+                <h3>User (Phone) Exists and Must Authorize</h3>
 
-        <p>Token: <input id="authToken" type="text" value="" /></p>
--->
+                Wall of Coins user password:
+                <input id="wocPassword" type="password" value="" />
+                    <br/>
+                When the user already has a Wall of Coins account, this is the
+                point where they will learn that the application is integrating
+                with Wall of Coins. Users will be thrilled that they can use
+                your app directly with WOC! But we will experiment with asking
+                the user for their WOC password.
+            </p>
+        </div>
 
         <p>
             <button id="holdOrderBtn">Hold Order</button>
