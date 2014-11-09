@@ -214,6 +214,7 @@ Woc.Buy = (function() {
                     }
                 },
                 success: function(data) {
+                    $('#holdId').val(data.holds[0].id);
                     $('#captureHoldStep').show();
                 }
             });
@@ -222,6 +223,22 @@ Woc.Buy = (function() {
         });
 
         $('#captureHoldBtn').click(function() {
+            $('#captureError').hide();
+
+            var holdId = $('#holdId').val();
+            $.post(Woc.Api.url + '/api/v1/holds/' + holdId + '/capture/', {
+                'verificationCode': $('#smsCode').val()
+            })
+            .done(function(data) {
+                // URL will be for the 0th instruction: slice the '0/' from the end
+//                var instructions = $('#instructionsUrl').val().slice(0, -2);
+//                window.location = instructions + data[0].id;
+                alert('here is where we display the directions!');
+            })
+            .fail(function(data) {
+                $('#captureError .msg').html(data.responseJSON.detail);
+                $('#captureError').show();
+            });
             return false;
         });
     };

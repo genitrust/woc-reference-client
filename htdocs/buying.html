@@ -203,7 +203,22 @@
             must provide the SMS text code sent to their mobile phone.
         </p>
 
-        <p>Verification code: <input id="textCode" type="text" value="" /></p>
+        <p>
+            Hold ID:
+            <input id="holdId" type="text" value=""
+                readonly="readonly" />
+            <br/>
+            You will receive this from the previous API call (&quot;holds&quot;)
+        </p>
+
+        <p>SMS Verification code: <input id="smsCode" type="text" value="" /></p>
+
+        <div id="captureError" style="display:none;">
+            <p>
+                <font color="#dd0000"><strong>Error:</strong></font>
+                <span class="msg"></span>
+            </p>
+        </div>
 
         <button id="captureHoldBtn">Capture Hold</button>
         </blockquote>
