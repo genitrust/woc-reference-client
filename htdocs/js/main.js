@@ -68,7 +68,8 @@ Woc.Buy = (function() {
             if (data.doubleDeposit.length > 0) {
                 div.append('<p><strong>Double Deposit Options:</strong></p>');
                 $.each(data.doubleDeposit, function(i, obj) {
-                    var label = obj.bankName + ': ' + obj.amount.bits + ' bits';
+                    var label = obj.firstOffer.bankName + ': '
+                        + obj.totalAmount.bits + ' bits';
                     div.append('<p><input type="radio" name="offer" value="' +
                         obj.id + '">' + label + '<br/>');
                 });
@@ -77,8 +78,9 @@ Woc.Buy = (function() {
             if (data.multipleBanks.length > 0) {
                 div.append('<p><strong>Multiple-Bank Deposit Options:</strong></p>');
                 $.each(data.multipleBanks, function(i, obj) {
-                    var label = obj.firstOffer.bankName + '/' +
-                        obj.secondOffer.bankName + ': ' + obj.totalAmount.bits + ' bits';
+                    var label = obj.firstOffer.bankName + '/'
+                        + obj.secondOffer.bankName + ': ' + obj.totalAmount.bits
+                        + ' bits';
                     div.append('<p><input type="radio" name="offer" value="' +
                         obj.id + '">' + label + '<br/>');
                 });
@@ -219,6 +221,11 @@ Woc.Buy = (function() {
                 }
             });
 
+            return false;
+        });
+
+        $('#authHoldBtn').click(function() {
+            $('#holdOrderBtn').click();
             return false;
         });
 
