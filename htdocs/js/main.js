@@ -98,12 +98,99 @@ Woc.Buy = (function() {
     /**
      * Authorize the WOC user to add a device to their account.
      */
-    var authorizePhone = function(phone) {
-        $.post(Woc.Api.url + '/api/v1/auth/' + phone + '/authorize/', {
-            'password': $('#wocPassword').val()
-        }, function(data) {
-            console.log('need a token to pass to the Hold API');
-            console.log('data:', data);
+    var authorizePhone = function() {
+        var phone = $('#countryCode').val() + $('#userPhone').val();
+
+        $.ajax({
+            url: Woc.Api.url + '/api/v1/auth/' + phone + '/authorize/',
+            data: {
+                'password': $('#wocPassword').val()
+            },
+            type: 'POST',
+            statusCode: {
+                403: function() {
+                    alert('what is wrong? password badddd?');
+                },
+                400: function() {
+                    alert('maybe this means password wrong or something?');
+                },
+                200: function() {
+                    alert('authorization GREAT :D');
+                    placeHold();
+                }
+            }
+        });
+        // status 200 is when authorization worked :D
+    };
+
+    /**
+     * Places a hold on a buying offer.
+     */
+    var placeHold = function() {
+        var phone = $('#countryCode').val() + $('#userPhone').val();
+
+        $('#holdOrderBtn').attr('disabled', 'disabled');
+
+        // default POST data
+        var postData = {
+            'offer': $('input[type=radio][name=offer]').val(),
+            // An email can always be provided by the user. Emails have
+            // nothing to do with the user "account"; they just may be
+            // useful to Wall of Coins in the future for Order receipts
+            // or other imaginable purposes.
+            'email':  $('#email').val(),
+            'phone': phone
+        };
+
+        var token = $('#authToken').val();
+        if (token) {
+            // TODO: if we have an authenticated token, attach it to our
+            // POST parameters.
+            postData.token = token;
+        }
+        else {
+            // If the user does not exist, the device must create a blank
+            // user password.
+            var wocPassword = $('#wocPassword').val();
+            postData.password = '';
+            postData.deviceCode = $('#deviceCode').val();
+            postData.deviceName = $('#deviceName').val();
+        }
+
+        // Attempt to create a brand new user with this first purchase.
+        // TODO: should this API command automatically log in the user?
+        // or should the API first use the stored token / credentials to
+        // determine if the phone/device needs to be resent?
+        $.ajax({
+            url: Woc.Api.url + '/api/v1/holds/',
+            data: postData,
+            type: 'POST',
+            statusCode: {
+                403: function() {
+                    // Forbidden means that we need the user's Wall of
+                    // Coins password in order to use this phone number.
+                    // Doh!
+                    alert('what is wrong? is token invalid?');
+//                        alert('need WOC password');
+//                        $('#wocPasswordCtn').show();
+//                        $('#wocPassword').focus();
+                },
+                400: function() {
+                    // Bad Request means that we need the user's Wall of
+                    // Coins password in order to authorize a 3rd party
+                    // device access to use this phone number.
+                    $('#wocPasswordCtn').show();
+                    $('#wocPassword').focus();
+                },
+                200: function() {
+                    alert('everything was normal. need a password or something');
+                    $('#captureHoldStep').show();
+                }
+            },
+            success: function(data) {
+                $('#holdId').val(data.holds[0].id);
+                $('#captureHoldStep').show();
+            }
         });
     };
 
@@ -114,29 +201,54 @@ Woc.Buy = (function() {
         Woc.Api.init();
         initGeo('geolocation');
 
+        $('#queryBanksBtn').click(function() {
+            $.ajax({
+                url: Woc.Api.url + '/api/v1/banks/',
+                type: 'GET',
+                statusCode: {
+                    200: function(data) {
+                        $.each(data, function(i) {
+                            $('#banks').append($('<option></option>')
+                                .attr('value', data[i].id)
+                                .text(data[i].name)
+                            );
+                        });
+                        $('#queryBanksBtn').hide();
+                        $('#banks').show();
+                    }
+                }
+            });
+
+        });
+
         $('#discoverBtn').click(function() {
             var geolocation = $('#geolocation').val();
             $('#discoverBtn').attr('disabled', 'disabled');
             $('#offersNeededCtn').hide();
             $('#offersCtn').show();
 
-            // IMPORTANT: you *must* include the '/' at the end of the URL.
-            $.post(Woc.Api.url + '/api/v1/discoveryInputs/', {
-                'usdAmount': $('#usdAmount').val(),
-                'cryptoAmount': 0,
-                'crypto': 'BTC',
-                'zipCode': $('#zipCode').val(),
-                'bank': $('#banks').val(),
-                'cryptoAddress': $('#bitcoinAddress').val(),
-                'browserLocation': (geolocation[0] == '(') ? '' : geolocation
-            }, function(data) {
-                if (data.id) {
-                    $('#offersCtn').append('<p>Collecting offers...</p>');
-                    renderOffers('offersCtn', data.id);
-                }
-                else {
-                    $('#discoverBtn').removeAttr('disabled');
-                    $('#discoveryErrorCtn').show();
+
+            $.ajax({
+                url: Woc.Api.url + '/api/v1/discoveryInputs/',
+                data: {
+                    'usdAmount': $('#usdAmount').val(),
+                    'cryptoAmount': 0,
+                    'crypto': 'BTC',
+                    'zipCode': $('#zipCode').val(),
+                    'bank': $('#banks').val(),
+                    'cryptoAddress': $('#bitcoinAddress').val(),
+                    'browserLocation': (geolocation[0] == '(') ? '' : geolocation
+                },
+                type: 'POST',
+                statusCode: {
+                    201: function(data) {
+                        $('#offersCtn').append('<p>Collecting offers...</p>');
+                        renderOffers('offersCtn', data.id);
+                    },
+                    400: function() {
+                        $('#discoverBtn').removeAttr('disabled');
+                        $('#discoveryErrorCtn').show();
+                    }
                 }
             });
 
@@ -150,76 +262,14 @@ Woc.Buy = (function() {
         });
 
         $('#holdOrderBtn').click(function() {
-            var phone = $('#countryCode').val() + $('#userPhone').val();
             // we have a user password, so authenticate the user to add this
             // application as a device.
             if ($('#wocPassword:visible').length > 0) {
-                authorizePhone(phone);
-                return false;
-            }
-
-            $('#holdOrderBtn').attr('disabled', 'disabled');
-
-            // default POST data
-            var postData = {
-                'offer': $('input[type=radio][name=offer]').val(),
-                // An email can always be provided by the user. Emails have
-                // nothing to do with the user "account"; they just may be
-                // useful to Wall of Coins in the future for Order receipts
-                // or other imaginable purposes.
-                'email':  $('#email').val(),
-                'phone': phone
-            };
-
-            var token = $('#authToken').val();
-            if (token) {
-                // TODO: if we have an authenticated token, attach it to our
-                // POST parameters.
-                postData.token = token;
+                authorizePhone();
             }
             else {
-                // If the user does not exist, the device must create a blank
-                // user password.
-                postData.password = '';
-                postData.deviceCode = $('#deviceCode').val();
-                postData.deviceName = $('#deviceName').val();
+                placeHold();
             }
-
-            // Attempt to create a brand new user with this first purchase.
-            // TODO: should this API command automatically log in the user?
-            // or should the API first use the stored token / credentials to
-            // determine if the phone/device needs to be resent?
-            $.ajax({
-                url: Woc.Api.url + '/api/v1/holds/',
-                data: postData,
-                type: 'POST',
-                statusCode: {
-                    403: function() {
-                        // Forbidden means that we need the user's Wall of
-                        // Coins password in order to use this phone number.
-                        // Doh!
-                        alert('what is wrong? is token invalid?');
-//                        alert('need WOC password');
-//                        $('#wocPasswordCtn').show();
-//                        $('#wocPassword').focus();
-                    },
-                    400: function() {
-                        // Bad Request means that we need the user's Wall of
-                        // Coins password in order to authorize a 3rd party
-                        // device access to use this phone number.
-                        $('#wocPasswordCtn').show();
-                        $('#wocPassword').focus();
-                    },
-                    200: function() {
-                        alert('everything was normal');
-                        $('#captureHoldStep').show();
-                    }
-                },
-                success: function(data) {
-                    $('#holdId').val(data.holds[0].id);
-                    $('#captureHoldStep').show();
-                }
-            });
 
             return false;
         });
