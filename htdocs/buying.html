@@ -2,6 +2,7 @@
 <head>
     <title>Buying | WOC Example</title>
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     <script src="/js/main.js"></script>
 </head>
 
@@ -226,16 +227,16 @@
         </blockquote>
     </div>
 
-    <div id="instructionsCtn" style="display:none;">
-        <h2>Step 7: Render Buying Instructions</h2>
-    </div>
+    <div id="finishedCtn" style="display:none;">
+        <h2>Finished!</h2>
 
-    <div id="finalStep" style="display:none;">
-        <h2>Finally:</h2>
         <blockquote>
-            <p>The user may now manage their Buy Order, or all of their Buy
-                Orders. Use this page as reference:
-                <a href="order-management.html">Order Management</a></p>
+            <p>
+                Instructions are included in the JSON response of call:
+                <pre>/api/v1/holds/[HOLD-ID]/capture/</pre>
+                You will render these instructions for the user, and a list of the user's Orders can be found at:
+                <pre>/api/v1/holds/</pre>
+            </p>
         </blockquote>
     </div>
 
