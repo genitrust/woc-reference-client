@@ -118,9 +118,13 @@ Woc.Buy = (function() {
      */
     var authorizePhone = function(callback) {
         var phone = $('#countryCode').val() + $('#userPhone').val();
-        var postData = {
-            'password': $('#wocPassword').val(),
-            'device': $('#deviceCode').val()
+        var postData = {};
+        var password = $('#wocPassword').val();
+        if (password) {
+            postData.password = password;
+        }
+        else {
+            postData.device = $('#deviceCode').val();
         }
 
         $.ajax({
@@ -132,9 +136,12 @@ Woc.Buy = (function() {
                     alert('what is wrong? password badddd?');
                 },
                 400: function() {
-                    alert('password or device code is wrong.');
+                    alert('already have an active hold. you should cancel or capture it.');
                 },
                 200: function(data) {
+                    // if user's wall of coins password was used, we will
+                    // remove it so as to later use the device token instead.
+                    $('#wocPassword').val('');
                     $('#authToken').val(data.token);
                     if (typeof(callback) !== 'undefined') {
                         callback();
@@ -154,7 +161,7 @@ Woc.Buy = (function() {
 
         // default POST data
         var postData = {
-            'offer': $('input[type=radio][name=offer]').val(),
+            'offer': $('input[type=radio][name=offer]:checked').val(),
             // An email can always be provided by the user. Emails have
             // nothing to do with the user "account"; they just may be
             // useful to Wall of Coins in the future for Order receipts
@@ -167,7 +174,9 @@ Woc.Buy = (function() {
         if (token) {
             postData.token = token;
         }
-        else {
+
+        var deviceName = $('#deviceName').val();
+        if (deviceName) {
             // NOTE: only pass the phone number when creating a new device,
             // which will also be when you create the device name and code.
             postData.phone = phone;
@@ -178,10 +187,8 @@ Woc.Buy = (function() {
             postData.password = '';
         }
 
-        // Attempt to create a brand new user with this first purchase.
-        // TODO: should this API command automatically log in the user?
-        // or should the API first use the stored token / credentials to
-        // determine if the phone/device needs to be resent?
+        // Attempt to create a brand new user contact and device with this
+        // first purchase.
         $.ajax({
             url: Woc.Api.url + '/api/v1/holds/',
             data: postData,
@@ -189,12 +196,9 @@ Woc.Buy = (function() {
             statusCode: {
                 403: function() {
                     // Forbidden means that we need the user's Wall of
-                    // Coins password in order to use this phone number.
-                    // Doh!
-                    alert('what is wrong? is token invalid?');
-//                        alert('need WOC password');
-//                        $('#wocPasswordCtn').show();
-//                        $('#wocPassword').focus();
+                    // Coins password in order to use this mobile number.
+                    $('#wocPasswordCtn').show();
+                    $('#wocPassword').focus();
                 },
                 400: function() {
                     // Bad Request means that we need the user's Wall of
