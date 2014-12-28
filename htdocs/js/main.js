@@ -11,6 +11,18 @@ Woc.Api = (function() {
     return me;
 })();
 
+/**
+ * Scrolls to the bottom of the page.
+ */
+Woc.scrollDown = function(div) {
+    var offset = $(document).height();
+    if (typeof(div) !== 'undefined') {
+        offset = $('#' + div).offset().top;
+    }
+    $('html, body').animate({scrollTop: offset }, 500);
+};
+
+
 Woc.Buy = (function() {
     var me = {};
 
@@ -60,8 +72,8 @@ Woc.Buy = (function() {
                 div.append('<p><strong>Single Deposit Options:</strong></p>');
                 $.each(data.singleDeposit, function(i, obj) {
                     var label = obj.bankName + ': ' + obj.amount.bits + ' bits';
-                    div.append('<p><input type="radio" name="offer" value="' +
-                        obj.id + '">' + label + '<br/>');
+                    div.append('<p><label><input type="radio" name="offer" value="' +
+                        obj.id + '">' + label + '</label><br/>');
                 });
             }
 
@@ -88,6 +100,10 @@ Woc.Buy = (function() {
 
             if (results) {
                 $('#offerResultActions').show();
+                Woc.scrollDown();
+            }
+            else {
+                div.append('<p><strong>None found :(</strong></p>');
             }
         })
         .error(function() {
@@ -146,6 +162,9 @@ Woc.Buy = (function() {
         if (token) {
             // TODO: if we have an authenticated token, attach it to our
             // POST parameters.
+
+            // TODO: remove this notice when tokens are implemented.
+            // NOTE: TOKENS ARE NOT IMPLEMENTED!!!
             postData.token = token;
         }
         else {
@@ -185,11 +204,13 @@ Woc.Buy = (function() {
                 200: function() {
                     alert('everything was normal. need a password or something');
                     $('#captureHoldStep').show();
+                },
+                201: function(data) {
+                    // hold created
+                    $('#holdId').val(data.id);
+                    $('#captureHoldStep').show();
+                    Woc.scrollDown();
                 }
-            },
-            success: function(data) {
-                $('#holdId').val(data.holds[0].id);
-                $('#captureHoldStep').show();
             }
         });
     };
@@ -243,6 +264,7 @@ Woc.Buy = (function() {
                 statusCode: {
                     201: function(data) {
                         $('#offersCtn').append('<p>Collecting offers...</p>');
+                        Woc.scrollDown();
                         renderOffers('offersCtn', data.id);
                     },
                     400: function() {
@@ -258,6 +280,7 @@ Woc.Buy = (function() {
         $('#nextStepBtn').click(function() {
             $(this).attr('disabled', 'disabled');
             $('#authStep').show();
+            Woc.scrollDown('authStep');
             return false;
         });
 
@@ -283,19 +306,69 @@ Woc.Buy = (function() {
             $('#captureError').hide();
 
             var holdId = $('#holdId').val();
-            $.post(Woc.Api.url + '/api/v1/holds/' + holdId + '/capture/', {
-                'verificationCode': $('#smsCode').val()
-            })
-            .done(function(data) {
-                // URL will be for the 0th instruction: slice the '0/' from the end
-//                var instructions = $('#instructionsUrl').val().slice(0, -2);
-//                window.location = instructions + data[0].id;
-                alert('here is where we display the directions!');
-            })
-            .fail(function(data) {
-                $('#captureError .msg').html(data.responseJSON.detail);
-                $('#captureError').show();
+            var captureHold = function() {
+                $.ajax({
+                    url: Woc.Api.url + '/api/v1/holds/' + holdId + '/capture/',
+//                    crossDomain: true,
+//                    xhrFields: { withCredentials: true },
+                    data: {
+                        'verificationCode': $('#smsCode').val()
+                    },
+                    type: 'POST',
+                    statusCode: {
+                        403: function() {
+                            alert('what is wrong? password badddd?');
+                        },
+                        400: function() {
+                            alert('maybe this means password wrong or something?');
+                        },
+                        200: function() {
+                            alert('authorization GREAT :D and this was captured!');
+                            $('#finishedCtn').show();
+                            Woc.scrollDown();
+                        },
+                        201: function() {
+                            alert('created');
+                        }
+                    }
+                });
+            };
+
+            // before capturing, we must authorize
+            // log in with them credentials
+            var phone = $('#countryCode').val() + $('#userPhone').val();
+            var devPassword = ($('#deviceCode').val()) ? $('#deviceCode').val() : '';
+            var data = {
+                'password': ($('#wocPassword').val()) ? $('#wocPassword').val() : ''
+            }
+            if (devPassword) {
+                data.device = devPassword;
+            }
+
+            $.ajax({
+                url: Woc.Api.url + '/api/v1/auth/' + phone + '/authorize/',
+//                crossDomain: true,
+//                xhrFields: { withCredentials: true },
+                data: data,
+                type: 'POST',
+                statusCode: {
+                    403: function() {
+                        alert('2: what is wrong? password badddd?');
+                    },
+                    400: function() {
+                        alert('2: maybe this means password wrong or something?');
+                    },
+                    404: function() {
+                        alert('2: password bad >[');
+                    },
+                    200: function() {
+                        alert('2: authorization GREAT :D');
+                        captureHold();
+                    }
+                }
             });
+
+            Woc.scrollDown();
             return false;
         });
     };
