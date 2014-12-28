@@ -113,26 +113,32 @@ Woc.Buy = (function() {
 
     /**
      * Authorize the WOC user to add a device to their account.
+     *
+     * @param  function  function to call upon successful authorization.
      */
-    var authorizePhone = function() {
+    var authorizePhone = function(callback) {
         var phone = $('#countryCode').val() + $('#userPhone').val();
+        var postData = {
+            'password': $('#wocPassword').val(),
+            'device': $('#deviceCode').val()
+        }
 
         $.ajax({
             url: Woc.Api.url + '/api/v1/auth/' + phone + '/authorize/',
-            data: {
-                'password': $('#wocPassword').val()
-            },
+            data: postData,
             type: 'POST',
             statusCode: {
                 403: function() {
                     alert('what is wrong? password badddd?');
                 },
                 400: function() {
-                    alert('maybe this means password wrong or something?');
+                    alert('password or device code is wrong.');
                 },
-                200: function() {
-                    alert('authorization GREAT :D');
-                    placeHold();
+                200: function(data) {
+                    $('#authToken').val(data.token);
+                    if (typeof(callback) !== 'undefined') {
+                        callback();
+                    }
                 }
             }
         });
@@ -144,7 +150,6 @@ Woc.Buy = (function() {
      */
     var placeHold = function() {
         var phone = $('#countryCode').val() + $('#userPhone').val();
-
         $('#holdOrderBtn').attr('disabled', 'disabled');
 
         // default POST data
@@ -154,26 +159,23 @@ Woc.Buy = (function() {
             // nothing to do with the user "account"; they just may be
             // useful to Wall of Coins in the future for Order receipts
             // or other imaginable purposes.
-            'email':  $('#email').val(),
-            'phone': phone
+            'email':  $('#email').val()
         };
 
+        // have we already obtained the token to auth an existing device?
         var token = $('#authToken').val();
         if (token) {
-            // TODO: if we have an authenticated token, attach it to our
-            // POST parameters.
-
-            // TODO: remove this notice when tokens are implemented.
-            // NOTE: TOKENS ARE NOT IMPLEMENTED!!!
             postData.token = token;
         }
         else {
-            // If the user does not exist, the device must create a blank
-            // user password.
-            var wocPassword = $('#wocPassword').val();
-            postData.password = '';
+            // NOTE: only pass the phone number when creating a new device,
+            // which will also be when you create the device name and code.
+            postData.phone = phone;
             postData.deviceCode = $('#deviceCode').val();
             postData.deviceName = $('#deviceName').val();
+            // If the user does not exist, the device must create a blank
+            // user password.
+            postData.password = '';
         }
 
         // Attempt to create a brand new user with this first purchase.
@@ -198,8 +200,36 @@ Woc.Buy = (function() {
                     // Bad Request means that we need the user's Wall of
                     // Coins password in order to authorize a 3rd party
                     // device access to use this phone number.
-                    $('#wocPasswordCtn').show();
-                    $('#wocPassword').focus();
+
+                    // if your app already has a device password, then use
+                    // the device code to authorize the user's mobile phone.
+                    if (postData.deviceCode) {
+                        authorizePhone(placeHold);
+                    }
+                    else {
+                        // if your app does not already have a device password,
+                        // you should have created the device with your first
+                        // hold API call--this ajax call! (/api/v1/holds/)
+                        //
+                        // if you still reach this point even when supplying
+                        // a device password and/or device name, it is because
+                        // the device cannot be created without the user's
+                        // Wall of Coins password. You will want to tell the
+                        // user about Wall of Coins, and let them know that
+                        // they need to input their Wall of Coins password in
+                        // order to add the device. Bad security :( we must
+                        // implement Wall of Coins to return an access token...
+                        $('#wocPasswordCtn').show();
+                        $('#wocPassword').focus();
+
+                        // TODO: BE AWARE OF THIS!
+                        // Status 400 can also mean that the user already has another hold under their mobile number.
+                        // Each mobile number is only allowed 1 hold at a time until further implementation. If the
+                        // 400 response is because of multiple holds, the JSON response will contain the property
+                        // 'detail' with the following message:
+                        // "You can have only one active hold or pending order at the time. Try to cancel active hold
+                        // first."
+                    }
                 },
                 200: function() {
                     alert('everything was normal. need a password or something');
@@ -248,7 +278,6 @@ Woc.Buy = (function() {
             $('#offersNeededCtn').hide();
             $('#offersCtn').show();
 
-
             $.ajax({
                 url: Woc.Api.url + '/api/v1/discoveryInputs/',
                 data: {
@@ -288,7 +317,7 @@ Woc.Buy = (function() {
             // we have a user password, so authenticate the user to add this
             // application as a device.
             if ($('#wocPassword:visible').length > 0) {
-                authorizePhone();
+                authorizePhone(placeHold);
             }
             else {
                 placeHold();
@@ -307,12 +336,15 @@ Woc.Buy = (function() {
 
             var holdId = $('#holdId').val();
             var captureHold = function() {
+                $('#captureHoldBtn').attr('disabled', 'disabled');
+                $('#captureHoldStatusCtn').show();
+                Woc.scrollDown();
+
                 $.ajax({
                     url: Woc.Api.url + '/api/v1/holds/' + holdId + '/capture/',
-//                    crossDomain: true,
-//                    xhrFields: { withCredentials: true },
                     data: {
-                        'verificationCode': $('#smsCode').val()
+                        'verificationCode': $('#smsCode').val(),
+                        'token': $('#authToken').val()
                     },
                     type: 'POST',
                     statusCode: {
@@ -323,7 +355,6 @@ Woc.Buy = (function() {
                             alert('maybe this means password wrong or something?');
                         },
                         200: function() {
-                            alert('authorization GREAT :D and this was captured!');
                             $('#finishedCtn').show();
                             Woc.scrollDown();
                         },
@@ -334,41 +365,9 @@ Woc.Buy = (function() {
                 });
             };
 
-            // before capturing, we must authorize
-            // log in with them credentials
-            var phone = $('#countryCode').val() + $('#userPhone').val();
-            var devPassword = ($('#deviceCode').val()) ? $('#deviceCode').val() : '';
-            var data = {
-                'password': ($('#wocPassword').val()) ? $('#wocPassword').val() : ''
-            }
-            if (devPassword) {
-                data.device = devPassword;
-            }
-
-            $.ajax({
-                url: Woc.Api.url + '/api/v1/auth/' + phone + '/authorize/',
-//                crossDomain: true,
-//                xhrFields: { withCredentials: true },
-                data: data,
-                type: 'POST',
-                statusCode: {
-                    403: function() {
-                        alert('2: what is wrong? password badddd?');
-                    },
-                    400: function() {
-                        alert('2: maybe this means password wrong or something?');
-                    },
-                    404: function() {
-                        alert('2: password bad >[');
-                    },
-                    200: function() {
-                        alert('2: authorization GREAT :D');
-                        captureHold();
-                    }
-                }
-            });
-
-            Woc.scrollDown();
+            // before capturing, you must authorize the device (your software)
+            // and receive an authorization token.
+            authorizePhone(captureHold);
             return false;
         });
     };
