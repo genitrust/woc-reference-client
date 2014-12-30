@@ -285,6 +285,8 @@ Woc.Buy = (function() {
             $.ajax({
                 url: Woc.Api.url + '/api/v1/discoveryInputs/',
                 data: {
+                    'publisherId': $('#publisherId').val(),
+                    'token': $('#authToken').val(),
                     'usdAmount': $('#usdAmount').val(),
                     'cryptoAmount': 0,
                     'crypto': 'BTC',
@@ -347,6 +349,7 @@ Woc.Buy = (function() {
                 $.ajax({
                     url: Woc.Api.url + '/api/v1/holds/' + holdId + '/capture/',
                     data: {
+                        'publisherId': $('#publisherId').val(),
                         'verificationCode': $('#smsCode').val(),
                         'token': $('#authToken').val()
                     },
