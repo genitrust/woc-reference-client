@@ -47,7 +47,7 @@
         </p>
 
         <p>
-            Token: <input id="authToken" type="text" value="" />
+            User's Access Token: <input id="authToken" type="text" value="" />
                 <br/>
             Use the <a href="authorization.html">Authorization</a> page to
             obtain an authentication token for the end user. If you already
@@ -137,6 +137,9 @@
             prompt the user for their phone number.
             </p>
 
+        <p><strong>If you already have the User's Access Token,</strong> then
+            you do not need this :)</p>
+
         <p>
             User Phone #:
             <select id="countryCode">
@@ -176,27 +179,46 @@
             the end user and Wall of Coins.
         </p>
 
-        <div id="wocPasswordCtn" style="display:none;">
-            <p>
-                <h3>User (Phone) Exists and Must Authorize</h3>
-
-                Wall of Coins user password:
-                <input id="wocPassword" type="password" value="" />
-                    <br/>
-                When the user already has a Wall of Coins account, this is the
-                point where they will learn that the application is integrating
-                with Wall of Coins. Users will be thrilled that they can use
-                your app directly with WOC! But we will experiment with asking
-                the user for their WOC password.
-            </p>
-
-            <p><button id="authHoldBtn">Auth and then Hold Order</button></p>
-        </div>
-
         <p>
             <button id="holdOrderBtn">Hold Order</button>
         </p>
         </blockquote>
+    </div>
+
+    <div id="wocPasswordCtn" style="display:none;">
+        <p>
+            <h3>User (Phone) Exists and Must Authorize</h3>
+
+            Wall of Coins user password:
+            <input id="wocPassword" type="password" value="" />
+                <br/>
+            When the user already has a Wall of Coins account, this is the
+            point where they will learn that the application is integrating
+            with Wall of Coins. Users will be thrilled that they can use
+            your app directly with WOC! But we will experiment with asking
+            the user for their WOC password.
+        </p>
+
+        <p>
+            <strong>To get past this point,</strong> you need one of the following
+            valid items:
+            <ul>
+                <li>User Phone # and Wall of Coins Password combination,</li>
+                <li>User Phone # and Device Access Code combination,</li>
+                <li>User Access Token</li>
+            </ul>
+
+            <strong>To prevent getting here,</strong> you need to grab the user's
+            mobile phone number and attach your &quot;device&quot; to the user's
+            mobile contact. You'll need to specify all of the following:
+            <ul>
+                <li>User Phone #</li>
+                <li>Device Access Code (if not unique, the previous device will be used)</li>
+                <li>Device Name</li>
+            </ul>
+        </p>
+
+        <p><button id="authHoldBtn">Auth and then Hold Order</button></p>
     </div>
 
     <div id="captureHoldStep" style="display:none;">

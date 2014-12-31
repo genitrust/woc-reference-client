@@ -135,8 +135,8 @@ Woc.Buy = (function() {
                 403: function() {
                     alert('what is wrong? password badddd?');
                 },
-                400: function() {
-                    alert('already have an active hold. you should cancel or capture it.');
+                400: function(data) {
+                    alert(data.responseJSON.detail);
                 },
                 200: function(data) {
                     // if user's wall of coins password was used, we will
@@ -156,12 +156,14 @@ Woc.Buy = (function() {
      * Places a hold on a buying offer.
      */
     var placeHold = function() {
-        var phone = $('#countryCode').val() + $('#userPhone').val();
         $('#holdOrderBtn').attr('disabled', 'disabled');
 
         // default POST data
         var postData = {
+            'publisherId': $('#publisherId').val(),
+            'token': $('#authToken').val(),
             'offer': $('input[type=radio][name=offer]:checked').val(),
+            'phone': $('#countryCode').val() + $('#userPhone').val(),
             // An email can always be provided by the user. Emails have
             // nothing to do with the user "account"; they just may be
             // useful to Wall of Coins in the future for Order receipts
@@ -169,19 +171,14 @@ Woc.Buy = (function() {
             'email':  $('#email').val()
         };
 
-        // have we already obtained the token to auth an existing device?
-        var token = $('#authToken').val();
-        if (token) {
-            postData.token = token;
-        }
-
         var deviceName = $('#deviceName').val();
         if (deviceName) {
+            // when a device name is specified, the API ignores the password
+            // because now the deviceCode is used instead as a password.
+            postData.deviceName = deviceName,
+            postData.deviceCode = $('#deviceCode').val(),
             // NOTE: only pass the phone number when creating a new device,
             // which will also be when you create the device name and code.
-            postData.phone = phone;
-            postData.deviceCode = $('#deviceCode').val();
-            postData.deviceName = $('#deviceName').val();
             // If the user does not exist, the device must create a blank
             // user password.
             postData.password = '';
@@ -320,9 +317,14 @@ Woc.Buy = (function() {
         });
 
         $('#holdOrderBtn').click(function() {
+            // if we do NOT have a token AND we're NOT creating a new device,
+            // authorize the phone first to obtain a token.
+            if ($('#authToken').val().length == 0 && $('#deviceName').val().length == 0) {
+                authorizePhone(placeHold);
+            }
             // we have a user password, so authenticate the user to add this
             // application as a device.
-            if ($('#wocPassword:visible').length > 0) {
+            else if ($('#wocPassword:visible').length > 0) {
                 authorizePhone(placeHold);
             }
             else {
