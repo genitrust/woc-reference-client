@@ -57,10 +57,21 @@ Woc.Api = (function() {
 Woc.Buy = (function() {
     var me = {};
 
-    me.getOrders = function(e) {
-        $(this).attr('href', '//google.com');
+    me.getOrders = function() {
+        $(this).attr('href', Woc.Api.endpoint() + '/api/v1/holds');
         $(this).attr('target', '_blank');
-        return true;
+    };
+
+    me.currentAuthToken = function() {
+        $.ajax({
+            url: Woc.Api.url + '/api/v1/auth/current/',
+            type: 'GET',
+            statusCode: {
+                200: function(data) {
+                    $('#authToken').val(data.token);
+                }
+            }
+        });
     };
 
     /**
@@ -76,7 +87,7 @@ Woc.Buy = (function() {
             postData.password = password;
         }
         else {
-            postData.device = $('#deviceCode').val();
+            postData.deviceCode = $('#deviceCode').val();
         }
 
         $.ajax({
@@ -174,7 +185,7 @@ Woc.Buy = (function() {
                 'publisherId': $('#publisherId').val(),
 //                'token': $('#authToken').val(),
                 'offer': $('input[type=radio][name=offer]:checked').val(),
-                'phone': ($('#authToken').val()) ? '' : $('#countryCode').val() + $('#userPhone').val(),
+                'phone': $('#countryCode').val() + $('#userPhone').val(),
 // extra information about existing 'user' authorization. API parameter adjustments'
 //            'phone': $('#countryCode').val() + $('#userPhone').val(),
                 // An email can always be provided by the user. Emails have
@@ -216,11 +227,13 @@ Woc.Buy = (function() {
                         // Bad Request means that we need the user's Wall of
                         // Coins password in order to authorize a 3rd party
                         // device access to use this phone number.
+                        $('#wocPasswordCtn').show();
+                        $('#wocPassword').focus();
 
                         // if your app already has a device password, then use
                         // the device code to authorize the user's mobile phone.
                         if (postData.deviceCode) {
-                            authorizePhone(placeHold);
+//                            me.authorizePhone(placeHold);
                         }
                         else {
                             // if your app does not already have a device password,
@@ -272,12 +285,12 @@ Woc.Buy = (function() {
         // if we do NOT have a token AND we're NOT creating a new device,
         // authorize the phone first to obtain a token.
         if ($('#authToken').val() == '' && $('#deviceName').val() == '') {
-            authorizePhone(placeHold);
+            me.authorizePhone(placeHold);
         }
         // we have a user password, so authenticate the user to add this
         // application as a device.
         else if ($('#wocPassword:visible').length > 0) {
-            authorizePhone(placeHold);
+            me.authorizePhone(placeHold);
         }
         else {
             // here we have all of the auth info we need to request a hold.
@@ -418,6 +431,8 @@ Woc.Buy = (function() {
     me.init = function() {
         Woc.Api.init();
         initGeo('geolocation');
+
+        $('#currentAuthTokenBtn').click(me.currentAuthToken);
 
         $('#getOrdersBtn').click(me.getOrders);
 
