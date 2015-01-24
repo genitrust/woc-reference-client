@@ -1,6 +1,10 @@
 <html>
 <head>
     <title>Buying | WOC Example</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     <script src="/js/main.js"></script>
@@ -24,7 +28,7 @@
         </p>
     </blockquote>
 
-    <h2>Step 0: API credentials</h2>
+    <h2>Step 0: API setup</h2>
     <blockquote>
         <p>
         API credentials are not required; however, API credentials will credit
@@ -34,7 +38,7 @@
 
         <p>
             API Endpoint:
-            <input id="apiUrl" type="text" value="http://woc.reference.genitrust.com" />
+            <input id="apiUrl" type="text" value="http://dev.geni.to:8000" />
                 <br/>
             The base URL of the API.
         </p>
@@ -47,12 +51,23 @@
         </p>
 
         <p>
-            User's Access Token: <input id="authToken" type="text" value="" />
+            Device Auth Token: <input id="authToken" type="text" value="" />
+            <a class="btn btn-default" id="currentAuthTokenBtn">Current Auth Token</a>
                 <br/>
             Use the <a href="authorization.html">Authorization</a> page to
             obtain an authentication token for the end user. If you already
             have an authorization token, pass it in the field below, and
             the API will let you know whether that token is still valid.
+        </p>
+    </blockquote>
+
+    <h2>Step 0.5: Buying Management</h2>
+    <blockquote>
+        <p>
+            <a class="btn btn-primary" id="getOrdersBtn" href="#">Get Holds/Orders</a>
+            (requires user's access token) For managing buy orders, a list of
+            the user's Orders and their statuses can be found at:
+                <strong><code>GET /api/v1/holds/</code></strong>
         </p>
     </blockquote>
 
@@ -259,20 +274,23 @@
 
         <blockquote>
             <p>
-                Instructions are included in the JSON response of call:
+                You will now render instructions for the user to complete their
+                Order. Instructions are included in the JSON response of call:
 <pre>POST /api/v1/holds/[HOLD_ID]/capture/ {
     verificationCode: string
 }
 </pre>
+            </p>
 
-                You will render these instructions for the user, and a list of the user's Orders can be found at:
-                <pre>GET /api/v1/holds/</pre>
+            <p>
+                <button id="cancelOrderBtn">Cancel This Order</button>
+                To cancel this Order: <strong><code>DELETE /api/v1/holds/[ORDER_ID]</code></strong>
+            </p>
 
-                To cancel the Order:
-                <pre>DELETE /api/v1/holds/[ORDER_ID]</pre>
-
+            <p>
+                <button id="confirmDepositBtn">Confirm Deposit</button>
                 To confirm that the buyer deposited the payment for the Order:
-                <pre>POST /api/v1/orders/[ORDER_ID]/confirmDeposit/</pre>
+                <strong><code>POST /api/v1/orders/[ORDER_ID]/confirmDeposit/</code></strong>
             </p>
         </blockquote>
     </div>
