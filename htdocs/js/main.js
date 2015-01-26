@@ -146,7 +146,6 @@ Woc.Buy = (function() {
             beforeSend: Woc.Api.includeAuthToken,
             data: {
                 'publisherId': $('#publisherId').val(),
-                'token': $('#authToken').val(),
                 'usdAmount': $('#usdAmount').val(),
                 'cryptoAmount': 0,
                 'crypto': 'BTC',
@@ -183,9 +182,7 @@ Woc.Buy = (function() {
             // default POST data
             var postData = {
                 'publisherId': $('#publisherId').val(),
-//                'token': $('#authToken').val(),
                 'offer': $('input[type=radio][name=offer]:checked').val(),
-                'phone': $('#countryCode').val() + $('#userPhone').val(),
 // extra information about existing 'user' authorization. API parameter adjustments'
 //            'phone': $('#countryCode').val() + $('#userPhone').val(),
                 // An email can always be provided by the user. Emails have
@@ -194,6 +191,12 @@ Woc.Buy = (function() {
                 // or other imaginable purposes.
                 'email':  $('#email').val()
             };
+
+            if ($('#authToken').val() == '') {
+                // if we have no authorized token, then we need the user's
+                // phone number in order to create a Coins account.
+                postData.phone = $('#countryCode').val() + $('#userPhone').val();
+            }
 
             var deviceName = $('#deviceName').val();
             if (deviceName) {
@@ -313,8 +316,7 @@ Woc.Buy = (function() {
             beforeSend: Woc.Api.includeAuthToken,
             data: {
                 'publisherId': $('#publisherId').val(),
-                'verificationCode': $('#smsCode').val(),
-                'token': $('#authToken').val()
+                'verificationCode': $('#smsCode').val()
             },
             type: 'POST',
             statusCode: {

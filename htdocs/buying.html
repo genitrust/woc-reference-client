@@ -37,11 +37,13 @@
         </p>
 
         <p>
-            API Endpoint:
-            <input id="apiUrl" type="text" value="http://dev.geni.to:8000" />
-                <br/>
-            The base URL of the API.
-        </p>
+        <div class="form-group">
+            <label for="apiUrl">API Endpoint:</label>
+            <input id="apiUrl" type="text" class="form-control"
+                value="http://woc.reference.genitrust.com/"
+            />
+            <span class="help-block">The base URL of the API.</span>
+        </div>
 
         <p>
             Publisher ID: <input id="publisherId" type="text" />
@@ -110,7 +112,7 @@
             <select id="banks" style="display:none;">
             </select>
 
-            <button id="queryBanksBtn">Query Banks</button>
+            <a id="queryBanksBtn" class="btn btn-default">Query Banks</a>
                 <br/>
             You must click "Query Banks" to get a list of banks from the API.
         </p>
@@ -119,7 +121,7 @@
     <h2>Step 3: Submit Results to Discover Purchase Options</h2>
     <blockquote>
         <p>
-            <button id="discoverBtn">Discover Purchase Options</button>
+            <a id="discoverBtn" class="btn btn-default">Discover Purchase Options</a>
         </p>
     </blockquote>
 
@@ -135,7 +137,7 @@
         </div>
 
         <div id="offerResultActions" style="display:none;">
-            <p><button id="nextStepBtn" value="">Next Step...</button></p>
+            <p><a id="nextStepBtn" class="btn btn-default">Next Step...</a></p>
         </div>
     </blockquote>
 
@@ -195,7 +197,7 @@
         </p>
 
         <p>
-            <button id="holdOrderBtn">Hold Order</button>
+            <a id="holdOrderBtn" class="btn btn-default">Hold Order</a>
         </p>
         </blockquote>
     </div>
@@ -233,7 +235,7 @@
             </ul>
         </p>
 
-        <p><button id="authHoldBtn">Auth and then Hold Order</button></p>
+        <p><a id="authHoldBtn" class="btn btn-default">Auth and then Hold Order</a></p>
     </div>
 
     <div id="captureHoldStep" style="display:none;">
@@ -261,7 +263,7 @@
             </p>
         </div>
 
-        <button id="captureHoldBtn">Capture Hold</button>
+        <a id="captureHoldBtn" class="btn btn-default">Capture Hold</a>
 
         <div id="captureHoldStatusCtn" style="display:none;">
             <p>Capturing Hold...</p>
@@ -283,12 +285,12 @@
             </p>
 
             <p>
-                <button id="cancelOrderBtn">Cancel This Order</button>
+                <a id="cancelOrderBtn" class="btn btn-default">Cancel This Order</a>
                 To cancel this Order: <strong><code>DELETE /api/v1/holds/[ORDER_ID]</code></strong>
             </p>
 
             <p>
-                <button id="confirmDepositBtn">Confirm Deposit</button>
+                <a id="confirmDepositBtn" class="btn btn-default">Confirm Deposit</a>
                 To confirm that the buyer deposited the payment for the Order:
                 <strong><code>POST /api/v1/orders/[ORDER_ID]/confirmDeposit/</code></strong>
             </p>
