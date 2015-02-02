@@ -64,7 +64,7 @@ Woc.Buy = (function() {
 
     me.currentAuthToken = function() {
         $.ajax({
-            url: Woc.Api.url + '/api/v1/auth/current/',
+            url: Woc.Api.endpoint() + '/api/v1/auth/current/',
             type: 'GET',
             statusCode: {
                 200: function(data) {
@@ -91,7 +91,7 @@ Woc.Buy = (function() {
         }
 
         $.ajax({
-            url: Woc.Api.url + '/api/v1/auth/' + phone + '/authorize/',
+            url: Woc.Api.endpoint() + '/api/v1/auth/' + phone + '/authorize/',
             data: postData,
             type: 'POST',
             statusCode: {
@@ -117,7 +117,7 @@ Woc.Buy = (function() {
 
     var queryBanks = function() {
         $.ajax({
-            url: Woc.Api.url + '/api/v1/banks/',
+            url: Woc.Api.endpoint() + '/api/v1/banks/',
             type: 'GET',
             beforeSend: Woc.Api.includeAuthToken,
             statusCode: {
@@ -142,7 +142,7 @@ Woc.Buy = (function() {
         $('#offersCtn').show();
 
         $.ajax({
-            url: Woc.Api.url + '/api/v1/discoveryInputs/',
+            url: Woc.Api.endpoint() + '/api/v1/discoveryInputs/',
             beforeSend: Woc.Api.includeAuthToken,
             data: {
                 'publisherId': $('#publisherId').val(),
@@ -215,7 +215,7 @@ Woc.Buy = (function() {
             // Attempt to create a brand new user contact and device with this
             // first purchase.
             $.ajax({
-                url: Woc.Api.url + '/api/v1/holds/',
+                url: Woc.Api.endpoint() + '/api/v1/holds/',
                 beforeSend: Woc.Api.includeAuthToken,
                 data: postData,
                 type: 'POST',
@@ -312,7 +312,7 @@ Woc.Buy = (function() {
         Woc.scrollDown();
 
         $.ajax({
-            url: Woc.Api.url + '/api/v1/holds/' + holdId + '/capture/',
+            url: Woc.Api.endpoint() + '/api/v1/holds/' + holdId + '/capture/',
             beforeSend: Woc.Api.includeAuthToken,
             data: {
                 'publisherId': $('#publisherId').val(),
@@ -376,7 +376,7 @@ Woc.Buy = (function() {
      * @param  object  offer information
      */
     var renderOffers = function(div, offerId) {
-        var url = Woc.Api.url + '/api/v1/discoveryInputs/' + offerId + '/offers/';
+        var url = Woc.Api.endpoint() + '/api/v1/discoveryInputs/' + offerId + '/offers/';
         div = $('#' + div);
 
         $.get(url).success(function(data) {
