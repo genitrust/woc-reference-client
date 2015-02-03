@@ -19,11 +19,6 @@ var Woc = (function() {
 Woc.Api = (function() {
     var me = {};
 
-    me.init = function() {
-        me.url = $('#apiUrl').val();
-        me.publisher = $('#publisherId').val();
-    };
-
     me.includeAuthToken = function(request) {
         var token = $('#authToken').val();
         if (token != '') {
@@ -56,6 +51,7 @@ Woc.Api = (function() {
  */
 Woc.Buy = (function() {
     var me = {};
+    me.orderId = 0;     // set to a value if there is an active order.
 
     me.getOrders = function() {
         $(this).attr('href', Woc.Api.endpoint() + '/api/v1/holds');
@@ -326,7 +322,8 @@ Woc.Buy = (function() {
                 400: function() {
                     alert('maybe this means password wrong or something?');
                 },
-                200: function() {
+                200: function(data) {
+                    me.orderId = data[0].id;
                     $('#finishedCtn').show();
                     Woc.scrollDown();
                 },
@@ -427,11 +424,20 @@ Woc.Buy = (function() {
         });
     };
 
+    me.cancelOrder = function() {
+        $(this).attr('href', Woc.Api.endpoint() + '/api/v1/orders/' + me.orderId);
+        $(this).attr('target', '_blank');
+    };
+
+    me.confirmDeposit = function() {
+        $(this).attr('href', Woc.Api.endpoint() + '/api/v1/orders/' + me.orderId + '/confirmDeposit');
+        $(this).attr('target', '_blank');
+    };
+
     /**
      * Initializes and defines the Buy View's actions and behaviors.
      */
     me.init = function() {
-        Woc.Api.init();
         initGeo('geolocation');
 
         $('#currentAuthTokenBtn').click(me.currentAuthToken);
@@ -457,6 +463,8 @@ Woc.Buy = (function() {
         });
 
         $('#captureHoldBtn').click(captureHold);
+        $('#cancelOrderBtn').click(me.cancelOrder);
+        $('#confirmDepositBtn').click(me.confirmDeposit);
     };
 
     return me;
