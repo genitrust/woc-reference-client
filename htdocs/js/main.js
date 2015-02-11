@@ -223,41 +223,17 @@ Woc.Buy = (function() {
                         $('#wocPassword').focus();
                     },
                     400: function() {
-                        // Bad Request means that we need the user's Wall of
-                        // Coins password in order to authorize a 3rd party
-                        // device access to use this phone number.
-                        $('#wocPasswordCtn').show();
-                        $('#wocPassword').focus();
+                        // They already have an order awaiting deposit. They must complete this order first.
+                        // If a new device was specified in the API, the device will not be created since no
+                        // order will be created either.
+                        alert('This user already has an order awaiting for payment.');
 
-                        // if your app already has a device password, then use
-                        // the device code to authorize the user's mobile phone.
-                        if (postData.deviceCode) {
-//                            me.authorizePhone(placeHold);
-                        }
-                        else {
-                            // if your app does not already have a device password,
-                            // you should have created the device with your first
-                            // hold API call--this ajax call! (/api/v1/holds/)
-                            //
-                            // if you still reach this point even when supplying
-                            // a device password and/or device name, it is because
-                            // the device cannot be created without the user's
-                            // Wall of Coins password. You will want to tell the
-                            // user about Wall of Coins, and let them know that
-                            // they need to input their Wall of Coins password in
-                            // order to add the device. Bad security :( we must
-                            // implement Wall of Coins to return an access token...
-                            $('#wocPasswordCtn').show();
-                            $('#wocPassword').focus();
-
-                            // TODO: BE AWARE OF THIS!
-                            // Status 400 can also mean that the user already has another hold under their mobile number.
-                            // Each mobile number is only allowed 1 hold at a time until further implementation. If the
-                            // 400 response is because of multiple holds, the JSON response will contain the property
-                            // 'detail' with the following message:
-                            // "You can have only one active hold or pending order at the time. Try to cancel active hold
-                            // first."
-                        }
+                        // Each mobile number is only allowed 1 hold at a time until further implementation.
+                        // If the 400 response is because of multiple holds, the JSON response will contain
+                        // the property 'detail' with the following message:
+                        //
+                        // "You can have only one active hold or pending order at the time. Try to cancel
+                        // active hold first."
                     },
                     200: function() {
                         alert('everything was normal. need a password or something');
