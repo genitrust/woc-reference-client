@@ -54,14 +54,22 @@ Woc.Buy = (function() {
     me.orderId = 0;     // set to a value if there is an active order.
 
     me.getOrders = function() {
-        $(this).attr('href', Woc.Api.endpoint() + '/api/v1/holds');
-        $(this).attr('target', '_blank');
+      var apiQuery = Woc.Api.endpoint() + '/api/v1/holds';
+      $('#apiQuery').text(apiQuery);
+      $.ajax({
+        url: apiQuery,
+        method: "POST",
+        statusCode: {
+          200: function(data) {
+            $('#apiResponse').text(JSON.stringify(data, null, 2));
+          }
+        }
+      });
     };
 
     me.currentAuthToken = function() {
         $.ajax({
             url: Woc.Api.endpoint() + '/api/v1/auth/current/',
-            type: 'GET',
             statusCode: {
                 200: function(data) {
                     $('#authToken').val(data.token);
@@ -89,7 +97,7 @@ Woc.Buy = (function() {
         $.ajax({
             url: Woc.Api.endpoint() + '/api/v1/auth/' + phone + '/authorize/',
             data: postData,
-            type: 'POST',
+            method: 'POST',
             statusCode: {
                 403: function() {
                     alert('what is wrong? password badddd?');
@@ -129,6 +137,19 @@ Woc.Buy = (function() {
                 }
             }
         });
+    };
+
+    var queryTicker = function() {
+      var apiQuery = Woc.Api.endpoint() + '/api/public/v1/ticker';
+      $('#apiQuery').text(apiQuery);
+      $.ajax({
+        url: apiQuery,
+        statusCode: {
+          200: function(data) {
+            $('#apiResponse').text(JSON.stringify(data, null, 2));
+          }
+        }
+      });
     };
 
     var discoverPurchaseOptions = function() {
@@ -421,6 +442,8 @@ Woc.Buy = (function() {
         $('#getOrdersBtn').click(me.getOrders);
 
         $('#queryBanksBtn').click(queryBanks);
+
+        $('#queryTickerBtn').click(queryTicker);
 
         $('#discoverBtn').click(discoverPurchaseOptions);
 
