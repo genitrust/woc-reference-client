@@ -1,0 +1,190 @@
+<html>
+<head>
+    <title>WOC DASH API Reference Client</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">WOC API <sup><small>DEMO</small></sup></a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="/sell.html">Sell</a></li>
+                <li class="active"><a href="#">Buy</a></li>
+            </ul>
+            <ul class="nav navbar-nav">
+                <li>
+                    <input id="crypto" type="checkbox" checked data-toggle="toggle" data-on="DASH" data-off="BTC">
+                </li>
+            </ul>
+            <form class="navbar-form navbar-left">
+                <div class="form-group" data-toggle="tooltip" data-placement="bottom" title="The base URL of the API">
+                    API Endpoint:
+                    &nbsp;<input id="apiUrl" type="text" class="form-control" value="http://dev.geni.to:8001" />
+                </div>
+            </form>
+        </div>
+    </nav>
+    <div class="container-fluid" id="mainContent">
+        <h1 class="first">Step 0: Create Auth</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input id="name" name="name" type="text" class="form-control" value="Demo User" />
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input id="phone" name="phone" type="text" class="form-control" value="+133177788" />
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input id="email" name="email" type="email" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input id="password" name="password" type="password" class="form-control" />
+                </div>
+                <button class="btn btn-block btn-primary btn-lg" id="authUserBtn">Auth User</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p>POST http://dev.geni.to:8001/api/v1/auth/</p>
+                        <p id="step0Post"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="step0Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>Step 1: Get Auth Token</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary btn-lg" id="getAuthTokenBtn">Get Auth Token</button>
+                <br/>
+                <div class="form-group">
+                    <label for="authToken">Auth Token:</label>
+                    <input id="authToken" class="form-control" disabled />
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p>POST http://dev.geni.to:8001/api/v1/auth/<span id="phoneUrl"></span></p>
+                        <p id="step1Post"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="step1Response"></p>
+                    </pre>
+                </div>
+            </div>
+
+        </div>
+        <h1>Step 2: Cash Receiving Options</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary btn-lg" id="getRecievingOptionsBtn">Get Recieving Options</button>
+                <br/>
+                <div class="list-container">
+                    <ul class="list-group" id="receivingOptionsList"></ul>
+                </div>
+                <br/>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p>GET http://dev.geni.to:8001/api/v1/banks/</p>
+                        <p id="step2Post"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="step2Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>Step 3: Create Address Alias</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="number">Account Number:</label>
+                    <input id="number" name="accountNumber" type="text" class="form-control" value="1234 5678 90" />
+                </div>
+                <div class="form-group">
+                    <label for="number2">Confirm Account Number:</label>
+                    <input id="number2" name="accountNumber2" type="text" class="form-control" value="1234 5678 90" />
+                </div>
+                <div class="form-group">
+                    <label for="price">Current Price:</label>
+                    <input id="price" name="price" type="text" class="form-control" value="10" />
+                </div>
+                <button class="btn btn-block btn-primary btn-lg" id="adCreateBtn">Create Address Alias</button>
+                <br/>
+                <div class="form-group">
+                    <label for="adId">Ad ID:</label>
+                    <input id="adId" type="text" class="form-control" disabled />
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p id="step3Header">HEADER X-Coins-Api-Token: </p>
+                        <p>POST http://dev.geni.to:8001/api/adcreate/</p>
+                        <p id="step3Post"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="step3Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>Step 4: Send SMS Verification Code</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary btn-lg" id="sendSmsBtn">Send SMS Code</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p id="step4Header">HEADER X-Coins-Api-Token: </p>
+                        <p>POST http://dev.geni.to:8001/api/sendVerification/</p>
+                        <p id="step4Post"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="step4Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container-fluid">
+            <p class="text-muted">&copy; 2014-2016 - Brought to you by Genitrust, Inc.</p>
+        </div>
+    </footer>
+    <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

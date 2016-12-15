@@ -1,329 +1,47 @@
 <html>
 <head>
-  <title>WOC API Reference Client</title>
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <style>
-    html {
-      position: relative;
-      min-height: 100%;
-    }
-    body{
-      padding-top: 70px;
-      margin-bottom: 60px;
-    }
-    #apiUrl{
-      width:300px;
-    }
-    .footer {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 60px;
-      background-color: #f5f5f5;
-    }
-    .container-fluid .text-muted {
-      margin: 20px 0;
-    }
-    .jumbotron pre p{
-      font-size: 14px;
-    }
-  </style>
+    <title>WOC DASH API Reference Client</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+        body{
+            margin-bottom: 60px;
+        }
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #f5f5f5;
+        }
+        .container-fluid .text-muted {
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
-  <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#woc-navbar-collapse" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">WOC API <sup><small>DEMO</small></sup></a>
-      </div>
-      <div class="collapse navbar-collapse" id="woc-navbar-collapse">
-        <form class="navbar-form navbar-left">
-          <div class="form-group" data-toggle="tooltip" data-placement="bottom" title="The base URL of the API">
-            API Endpoint:
-            &nbsp;<input id="apiUrl" type="text" class="form-control" value="http://woc.reference.genitrust.com" />
-          </div>
-        </form>
-      </div>
-    </div>
-  </nav>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-2 col-xs-6">
-        <h3>Credentials</h3>
-        <p>API credentials are not required; however, API credentials will credit you for any coin purchases made through your application's Wall of Coins integration.</p>
-        <div class="form-group">
-          <label for="publisherId">Publisher ID:</label>
-          <input id="publisherId" type="text" class="form-control" />
-          <span class="help-block">This is also known as the "API User". Call (866) 841-2646 to get a Publisher ID. If you're outside of the USA, call (217) 672-6467.</span>
+    <br/>
+    <br/>
+    <h1 class="text-center">Wall of Coins Reference Client</h1>
+    <br/>
+    <p class="text-center">Below are code examples of how to connect to the Wall of Coins API. Everyone is welcome to integrate their applications into Wall of Coins in any way they wish.</p>
+    <br/>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-3"><a class="btn btn-lg btn-block btn-primary" href="/sell.html">Sell</a></div>
+            <div class="col-md-2"></div>
+            <div class="col-md-3"><a class="btn btn-lg btn-block btn-primary" href="/buy.html">Buy</a></div>
+            <div class="col-md-2"></div>
         </div>
-        <div class="form-group">
-          <label for="authToken">Device Auth Token:</label>
-          <input id="authToken" type="text" class="form-control" />
-          <span class="help-block">Use the <a href="authorization.html">Authorization</a> page to obtain an authentication token for the end user. If you already have an authorization token, pass it in the field below, and the API will let you know whether that token is still valid.</span>
-        </div>
-        <a class="btn btn-sm btn-block btn-primary" id="currentAuthTokenBtn">Current Auth Token</a>
-        <hr/>
-        <h4>Buying Management</h4>
-        <a class="btn btn-sm btn-block btn-primary" id="getOrdersBtn">Get Holds/Orders</a>
-        <em>Requires user's access token. For managing buy orders, a list of the user's Orders and their statuses can be found at: <br/><code>GET /api/v1/holds/</code></em>
-      </div>
-      <div class="col-md-10 col-xs-6">
-        <div class="jumbotron">
-          <h1>Wall of Coins Buying Example</h1>
-          <p>This demo illustrates the API calls to buy coins from Wall of Coins. The HTML is simply an example View; your application will replace this View, while the Javascript object &quot;Woc.Buy&quot; provides a working example to interact with the WOC API.</p>
-          <p><a id="queryTickerBtn" class="btn btn-primary btn-lg" href="#" role="button">Try WOC API Ticker</a></p>
-          <pre>
-            <p>curl <span id="apiQuery"></span></p>
-            <p id="apiResponse">{}</p>
-          </pre>
-        </div>
-        <!-- <p>A work-flow diagram chart is available for certain processes. The first chart illustrates the overall process: <a href="/img/overall-buying-process.png" target="_blank">Overall Buying Process</a></p> -->
-      </div>
     </div>
-  </div>
-<!--
-  <h2>Step 1: (your) User's Info</h2>
-  <blockquote>
-      <p>First of all, you will to generate a Bitcoin Address for your user.
-          You can also allow the user to specify this if you wish.</p>
-      <p>User Bitcoin Address: <input id="bitcoinAddress" type="text" /></p>
-      <p>
-          <select id="currency">
-              <option value="USD" selected="selected">$</option>
-          </select>
-          <input id="usdAmount" type="tel" value="5" />
-      </p>
-  </blockquote>
-
-  <h2>Step 2: Location Input</h2>
-  <blockquote>
-      <p>
-          Only one of the following location ("destination") pieces of
-          information are required.
-      </p>
-
-      <p>
-          Geo-coordinates:
-          <input id="geolocation" type="text" value="(waiting on permission)"
-              readonly="readonly" />
-          <br/>
-          Geo-coordinates of location: required unless the zip/postal code or
-          bank destination are specified.
-      </p>
-
-      <p>
-          Zip Code:
-          <input id="zipCode" type="tel" value="" />
-      </p>
-
-      <p>
-          Deposit Destination (Bank):
-          <select id="banks" style="display:none;">
-          </select>
-
-          <a id="queryBanksBtn" class="btn btn-default">Query Banks</a>
-              <br/>
-          You must click "Query Banks" to get a list of banks from the API.
-      </p>
-  </blockquote>
-
-  <h2>Step 3: Submit Results to Discover Purchase Options</h2>
-  <blockquote>
-      <p>
-          <a id="discoverBtn" class="btn btn-default">Discover Purchase Options</a>
-      </p>
-  </blockquote>
-
-  <h2>Step 4: Collect User's Purchase Choice</h2>
-  <blockquote>
-      <div id="offersNeededCtn">
-          <p>(First: you need purchase options from the API's discovered
-              results.)</p>
-      </div>
-
-      <div id="offersCtn" style="display:none;">
-          <p>Discovering results...</p>
-      </div>
-
-      <div id="offerResultActions" style="display:none;">
-          <p><a id="nextStepBtn" class="btn btn-default">Next Step...</a></p>
-      </div>
-  </blockquote>
-
-  <div id="authStep" style="display:none;">
-      <h2>Step 5: Check If User is Authorized</h2>
-      <blockquote>
-
-      <p><strong>WAIT!</strong> When you <i>actually</i> place a hold on
-          the order, you need to include the end user's phone number and
-          device identification. The end-users phone number is stored
-          <i>only</i> with Wall of Coins and in your software data set. Wall
-          of Coins only uses the phone number as a point of emergency contact
-          or customer support. If you do not already have this information,
-          prompt the user for their phone number.
-          </p>
-
-      <p><strong>If you already have the User's Access Token,</strong> then
-          you do not need this :)</p>
-
-      <p>
-          User Phone #:
-          <select id="countryCode">
-              <option value="+1" selected="selected">+1</option>
-          </select>
-          <input id="userPhone" type="tel" value="" />
-      </p>
-
-      <p>
-          Device Access Code:
-          <input id="deviceCode" type="text" value="" />
-              <br/>
-          This should be a globally unique identifier. The user does not know
-          this value, nor do they supply it; it is generated by your application,
-          saved locally on your application, and submitted when you wish to
-          use the device for authorizing on behalf of your end user.
-      </p>
-
-      <p>
-          Device Name:
-          <input id="deviceName" type="text" value="" />
-              <br/>
-          Only supply this value if you want to create a device to be used on
-          behalf of the user--for example, if this is the first time you are adding
-          this device. The device name is used by the user to identify the device if
-          they so choose to remove the device's ability to access their WOC
-          information.
-      </p>
-
-      <p>
-          Email:
-          <input id="email" type="text" value="" />
-              <br/>
-          Email is <i>completely</i> optional. It is not required, and we
-          currently do not have a use for user's email addresses. You may use
-          this is you wish to coordinate communications (in the future) with
-          the end user and Wall of Coins.
-      </p>
-
-      <p>
-          <a id="holdOrderBtn" class="btn btn-default">Hold Order</a>
-      </p>
-      </blockquote>
-  </div>
-
-  <div id="wocPasswordCtn" style="display:none;">
-      <p>
-          <h3>User (Phone) Exists and Must Authorize</h3>
-
-          Wall of Coins user password:
-          <input id="wocPassword" type="password" value="" />
-              <br/>
-          When the user already has a Wall of Coins account, this is the
-          point where they will learn that the application is integrating
-          with Wall of Coins. Users will be thrilled that they can use
-          your app directly with WOC! But we will experiment with asking
-          the user for their WOC password.
-      </p>
-
-      <p>
-          <strong>To get past this point,</strong> you need one of the following
-          valid items:
-          <ul>
-              <li>User Phone # and Wall of Coins Password combination,</li>
-              <li>User Phone # and Device Access Code combination,</li>
-              <li>User Access Token</li>
-          </ul>
-
-          <strong>To prevent getting here,</strong> you need to grab the user's
-          mobile phone number and attach your &quot;device&quot; to the user's
-          mobile contact. You'll need to specify all of the following:
-          <ul>
-              <li>User Phone #</li>
-              <li>Device Access Code (if not unique, the previous device will be used)</li>
-              <li>Device Name</li>
-          </ul>
-      </p>
-
-      <p><a id="authHoldBtn" class="btn btn-default">Auth and then Hold Order</a></p>
-  </div>
-
-  <div id="captureHoldStep" style="display:none;">
-      <h2>Step 6: Capture the Hold</h2>
-      <blockquote>
-      <p>
-          In order to capture the hold, or finalize the hold, the end user
-          must provide the SMS text code sent to their mobile phone.
-      </p>
-
-      <p>
-          Hold ID:
-          <input id="holdId" type="text" value=""
-              readonly="readonly" />
-          <br/>
-          You will receive this from the previous API call (&quot;holds&quot;)
-      </p>
-
-      <p>SMS Verification code: <input id="smsCode" type="text" value="" /></p>
-
-      <div id="captureError" style="display:none;">
-          <p>
-              <font color="#dd0000"><strong>Error:</strong></font>
-              <span class="msg"></span>
-          </p>
-      </div>
-
-      <a id="captureHoldBtn" class="btn btn-default">Capture Hold</a>
-
-      <div id="captureHoldStatusCtn" style="display:none;">
-          <p>Capturing Hold...</p>
-      </div>
-      </blockquote>
-  </div>
-
-  <div id="finishedCtn" style="display:none;">
-      <h2>Finished!</h2>
-
-      <blockquote>
-          <p>
-              You will now render instructions for the user to complete their
-              Order. Instructions are included in the JSON response of call:
-<pre>POST /api/v1/holds/[HOLD_ID]/capture/ {
-  verificationCode: string
-}
-</pre>
-          </p>
-
-          <p>
-              <a id="cancelOrderBtn" class="btn btn-default">Cancel This Order</a>
-              To cancel this Order: <strong><code>DELETE /api/v1/orders/[ORDER_ID]/</code></strong>
-          </p>
-
-          <p>
-              <a id="confirmDepositBtn" class="btn btn-default">Confirm Deposit</a>
-              To confirm that the buyer deposited the payment for the Order:
-              <strong><code>POST /api/v1/orders/[ORDER_ID]/confirmDeposit/</code></strong>
-          </p>
-      </blockquote>
-  </div> -->
-  <footer class="footer">
-    <div class="container-fluid">
-      <p class="text-muted">&copy; 2014-2016 - Brought to you by Genitrust, Inc. | <a href="web-widget.html">Web Widget</a></p>
-    </div>
-  </footer>
-  <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="js/main.js"></script>
-  <script>
-    $(function () {
-      $(Woc.Buy.init);
-      $('[data-toggle="tooltip"]').tooltip()
-    })
-  </script>
+    <footer class="footer">
+        <div class="container-fluid">
+            <p class="text-muted">&copy; 2014-2016 - Brought to you by Genitrust, Inc.</p>
+        </div>
+    </footer>
 </body>
 </html>

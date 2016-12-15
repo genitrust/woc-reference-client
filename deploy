@@ -1,2 +1,0 @@
-#/bin/bash
-git add . && git commit -m "auto commit" && git push origin master && ssh dev.geni.to "cd development/woc-reference-client && git pull origin master"

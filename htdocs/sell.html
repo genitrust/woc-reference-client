@@ -1,0 +1,121 @@
+<html>
+<head>
+    <title>WOC DASH API Reference Client</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">WOC API <sup><small>DEMO</small></sup></a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Sell</a></li>
+                <li><a href="/buy.html">Buy</a></li>
+            </ul>
+            <ul class="nav navbar-nav">
+                <li>
+                    <input id="crypto" type="checkbox" checked data-toggle="toggle" data-on="DASH" data-off="BTC">
+                </li>
+            </ul>
+            <form class="navbar-form navbar-left">
+                <div class="form-group" data-toggle="tooltip" data-placement="bottom" title="The base URL of the API">
+                    API Endpoint:
+                    &nbsp;<input id="apiUrl" type="text" class="form-control" value="http://dev.geni.to:8001" />
+                </div>
+            </form>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <!-- <ul class="nav nav-tabs" role="tablist">
+            <li id="sellBtn" role="presentation" class="active"><a href="javascript:void(0)" aria-controls="sell">Sell</a></li>
+            <li id="buyBtn" role="presentation"><a href="javascript:void(0)" aria-controls="buy">Buy</a></li>
+        </ul> -->
+        <h1 class="first">Step 0: Create Auth</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input id="phone" name="phone" type="text" class="form-control" value="+133177788" />
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input id="email" name="email" type="email" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input id="password" name="password" type="password" class="form-control" />
+                </div>
+                <button class="btn btn-block btn-primary" id="authUserBtn">Auth User</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p>POST http://dev.geni.to:8001/api/v1/auth/</p>
+                        <p id="sellStep0Post"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="sellStep0Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>Step 1: Get Auth Token</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary" id="getAuthTokenBtn">Get Auth Token</button>
+                <p id="authToken" class="hidden"></p>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p>POST http://dev.geni.to:8001/api/v1/auth/<span id="phoneUrl"></span></p>
+                        <p id="sellStep1Post"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="sellStep1Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>Step 2: “Dash for Cash”</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary" id="getRecievingOptionsBtn">Get Recieving Options</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p>GET http://dev.geni.to:8001/api/v1/banks/</p>
+                        <p id="sellStep2Post"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="sellStep2Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container-fluid">
+            <p class="text-muted">&copy; 2014-2016 - Brought to you by Genitrust, Inc.</p>
+        </div>
+    </footer>
+    <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
