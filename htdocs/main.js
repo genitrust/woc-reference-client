@@ -31,6 +31,12 @@
         }
         $('#receivingOptionsList li').on('click', selectOption);
     }
+    function displayBankOptions(options) {
+        $('#banks').html('<option value=""></option>');
+        for(var i=0;i<options.length;i++){
+            $('#banks').append('<option value="'+options[i].id+'">'+options[i].name+'</option>');
+        }
+    }
     function selectOption(e) {
         $('.list-group-item').removeClass('active');
         $('#'+e.target.id).addClass('active');
@@ -177,13 +183,29 @@
                 }
             });
         },
+        getBanks: function () {
+            var reqUrl = getVal('#apiUrl')+'/api/v1/banks/';
+            setText('#banksUrl', 'GET '+reqUrl);
+            $.ajax({
+                url: reqUrl,
+                success: function(data) {
+                    setJson('#banksResponse', data);
+                    displayBankOptions(data)
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#banksCode', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
         discovery: function () {
             var reqUrl = getVal('#apiUrl')+'/api/v1/discoveryInputs/';
             setText('#step0Url', 'POST '+reqUrl);
             var postData = {
+                'publisherId': getVal('#publisherId'),
                 'phone': getVal('#phone'),
                 'usdAmount': getVal('#amount'),
                 'crypto': getCrypto(),
+                'bank': getVal('#banks'),
                 'zipCode': getVal('#zip')
             };
             setJson('#step0Post', postData);
@@ -195,6 +217,9 @@
                     setJson('#step0Response', data);
                     setVal('#discoveryId', data.id);
                     setText('#step1Url', 'GET '+reqUrl+data.id+'/offers/');
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step0Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -202,9 +227,13 @@
             $.ajax({
                 url: getVal('#apiUrl')+'/api/v1/discoveryInputs/'+getVal('#discoveryId')+'/offers/',
                 success: function(data) {
+                    $('#offerHelp').show();
                     setJson('#step1Response', data);
                     var offers = _.concat(data.singleDeposit, data.doubleDeposit, data.multipleBanks);
                     displayRecievingOptions(offers, true)
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step1Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -215,6 +244,7 @@
                 return alert('Please select an offer.');
             setText('#step2Url', 'POST '+reqUrl);
             var postData = {
+                publisherId: getVal('#publisherId'),
                 offer: offerId+'=',
                 phone: getVal('#phone'),
                 deviceName: getVal('#deviceName'),
@@ -231,12 +261,16 @@
                     setVal('#holdId', data.id);
                     setVal('#authToken', data.token);
                     setText('#step3Url', 'POST '+reqUrl+data.id+'/capture/');
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step2Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
         captureHold: function () {
             setText('#step3Header', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
             var postData = {
+                publisherId: getVal('#publisherId'),
                 verificationCode: getVal('#smsCode')
             };
             setJson('#step3Post', postData);
@@ -250,6 +284,9 @@
                     setVal('#orderId', data[0].id);
                     setText('#step4Url', 'POST '+getVal('#apiUrl')+'/api/v1/orders/'+data[0].id+'/confirmDeposit/');
                     setText('#step5Url', 'DELETE '+getVal('#apiUrl')+'/api/v1/orders/'+data[0].id+'/');
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step3Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -261,6 +298,9 @@
                 method: 'POST',
                 success: function(data) {
                     setJson('#step4Response', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step4Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -272,6 +312,9 @@
                 method: 'DELETE',
                 success: function(data) {
                     setJson('#cancelResponse', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#cancelCode', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -283,6 +326,9 @@
                 beforeSend: setRequestHeader,
                 success: function(data) {
                     setJson('#ordersResponse', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#ordersCode', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         }
@@ -298,6 +344,7 @@
             'sendSms',
             'verifyAd',
             'updateAdRate',
+            'getBanks',
             'discovery',
             'getOffers',
             'createHold',

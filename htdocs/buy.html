@@ -30,9 +30,39 @@
         </div>
     </nav>
     <div class="container-fluid">
-        <h1 class="first">Step 0: Discovery</h1>
+        <h1 class="first">Get Available Payment Centers <small>(Optional)</small></h1>
         <div class="row">
             <div class="col-md-3">
+                <button class="btn btn-block btn-primary" id="getBanksBtn">Get Payment Centers</button>
+                <br/>
+                <div class="form-group">
+                    <label for="banks">Select Payment Center: <small class="text-muted">(optional)</small></label>
+                    <select id="banks" name="banks" class="form-control">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p id="banksUrl">GET http://woc.reference.genitrust.com/api/v1/banks/</p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p id="banksCode">RESPONSE</p>
+                        <p id="banksResponse"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>Step 0: Discovery</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="publisherId">Publisher Id: <small class="text-muted">(optional)</small></label>
+                    <input id="publisherId" name="publisherId" type="text" class="form-control" />
+                </div>
                 <div class="form-group">
                     <label for="phone">Phone:</label>
                     <input id="phone" name="phone" type="text" class="form-control" value="+133177788" />
@@ -62,7 +92,7 @@
                 </div>
                 <div class="col-md-6">
                     <pre>
-                        <p>RESPONSE</p>
+                        <p id="step0Code">RESPONSE</p>
                         <p id="step0Response"></p>
                     </pre>
                 </div>
@@ -70,24 +100,25 @@
         </div>
         <h1>Step 1: Get Offers</h1>
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <button class="btn btn-block btn-primary" id="getOffersBtn">Get Offers</button>
                 <br/>
+                <p id="offerHelp" class="help-block">Click the offer you want to select</p>
                 <div class="list-container">
                     <ul class="list-group" id="receivingOptionsList"></ul>
                 </div>
                 <br/>
             </div>
-            <div class="col-md-9">
-                <div class="col-md-6">
+            <div class="col-md-8">
+                <div class="col-md-5">
                     <pre>
                         <p id="step1Url">GET http://woc.reference.genitrust.com/api/v1/discoveryInputs/&lt;authToken&gt;/offers/</p>
                         <p id="step1Post"></p>
                     </pre>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-7">
                     <pre>
-                        <p>RESPONSE</p>
+                        <p id="step1Code">RESPONSE</p>
                         <p id="step1Response"></p>
                     </pre>
                 </div>
@@ -124,7 +155,7 @@
                 </div>
                 <div class="col-md-6">
                     <pre>
-                        <p>RESPONSE</p>
+                        <p id="step2Code">RESPONSE</p>
                         <p id="step2Response"></p>
                     </pre>
                 </div>
@@ -154,7 +185,7 @@
                 </div>
                 <div class="col-md-6">
                     <pre>
-                        <p>RESPONSE</p>
+                        <p id="step3Code">RESPONSE</p>
                         <p id="step3Response"></p>
                     </pre>
                 </div>
@@ -175,7 +206,7 @@
                 </div>
                 <div class="col-md-6">
                     <pre>
-                        <p>RESPONSE</p>
+                        <p id="step4Code">RESPONSE</p>
                         <p id="step4Response"></p>
                     </pre>
                 </div>
@@ -196,7 +227,7 @@
                 </div>
                 <div class="col-md-6">
                     <pre>
-                        <p>RESPONSE</p>
+                        <p id="cancelCode">RESPONSE</p>
                         <p id="cancelResponse"></p>
                     </pre>
                 </div>
@@ -216,7 +247,7 @@
                 </div>
                 <div class="col-md-6">
                     <pre>
-                        <p>RESPONSE</p>
+                        <p id="ordersCode">RESPONSE</p>
                         <p id="ordersResponse"></p>
                     </pre>
                 </div>

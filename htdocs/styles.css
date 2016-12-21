@@ -26,7 +26,7 @@ body{
     margin: 20px 0;
 }
 pre{
-    max-height: 300px
+    max-height: 400px
 }
 pre p{
     font-size: 14px;
@@ -48,12 +48,18 @@ h1.first{
     margin: 30px auto;
     padding: 0px;
 }
+#offerHelp{
+    display: none;
+}
 .list-container{
     max-height: 250px;
     overflow-y: auto;
 }
-.list-group-item p{
-    display: none;
+.list-group-item{
+    cursor: pointer;
+}
+.list-group-item:hover{
+    background: #eee;
 }
 .list-group-item.active p{
     display: block;
