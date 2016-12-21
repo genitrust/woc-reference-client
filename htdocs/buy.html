@@ -1,3 +1,4 @@
+
 <html>
 <head>
     <title>WOC DASH API Reference Client</title>
@@ -12,48 +13,50 @@
                 <a class="navbar-brand" href="/">WOC API <sup><small>DEMO</small></sup></a>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="/sell.html">Sell</a></li>
-                <li class="active"><a href="#">Buy</a></li>
+                <li class="active"><a href="#">Buy Crypto</a></li>
+                <li><a href="/sell.html">Sell Crypto</a></li>
             </ul>
             <ul class="nav navbar-nav">
                 <li>
-                    <input id="crypto" type="checkbox" checked data-toggle="toggle" data-on="DASH" data-off="BTC">
+                    <input id="crypto" type="checkbox" data-toggle="toggle" data-on="DASH" data-off="BTC">
                 </li>
             </ul>
             <form class="navbar-form navbar-left">
                 <div class="form-group" data-toggle="tooltip" data-placement="bottom" title="The base URL of the API">
                     API Endpoint:
-                    &nbsp;<input id="apiUrl" type="text" class="form-control" value="http://dev.geni.to:8001" />
+                    &nbsp;<input id="apiUrl" type="text" class="form-control" value="http://woc.reference.genitrust.com" />
                 </div>
             </form>
         </div>
     </nav>
-    <div class="container-fluid" id="mainContent">
-        <h1 class="first">Step 0: Create Auth</h1>
+    <div class="container-fluid">
+        <h1 class="first">Step 0: Discovery</h1>
         <div class="row">
             <div class="col-md-3">
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input id="name" name="name" type="text" class="form-control" value="Demo User" />
-                </div>
                 <div class="form-group">
                     <label for="phone">Phone:</label>
                     <input id="phone" name="phone" type="text" class="form-control" value="+133177788" />
                 </div>
                 <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input id="email" name="email" type="email" class="form-control" />
+                    <label for="email">Zip:</label>
+                    <input id="zip" name="zip" type="text" class="form-control" value="34236" />
                 </div>
                 <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input id="password" name="password" type="password" class="form-control" />
+                    <label for="password">Amount:</label>
+                    <input id="amount" name="amount" type="number" class="form-control" value="500" />
                 </div>
-                <button class="btn btn-block btn-primary btn-lg" id="authUserBtn">Auth User</button>
+                <button class="btn btn-block btn-primary" id="discoveryBtn">Send User Data</button>
+                <br/>
+                <div class="form-group">
+                    <label for="discoveryId">Discovery ID:</label>
+                    <input id="discoveryId" class="form-control" />
+                </div>
+                <br/>
             </div>
             <div class="col-md-9">
                 <div class="col-md-6">
                     <pre>
-                        <p>POST http://dev.geni.to:8001/api/v1/auth/</p>
+                        <p id="step0Url">POST http://woc.reference.genitrust.com/api/v1/discoveryInputs/</p>
                         <p id="step0Post"></p>
                     </pre>
                 </div>
@@ -65,20 +68,20 @@
                 </div>
             </div>
         </div>
-        <h1>Step 1: Get Auth Token</h1>
+        <h1>Step 1: Get Offers</h1>
         <div class="row">
             <div class="col-md-3">
-                <button class="btn btn-block btn-primary btn-lg" id="getAuthTokenBtn">Get Auth Token</button>
+                <button class="btn btn-block btn-primary" id="getOffersBtn">Get Offers</button>
                 <br/>
-                <div class="form-group">
-                    <label for="authToken">Auth Token:</label>
-                    <input id="authToken" class="form-control" disabled />
+                <div class="list-container">
+                    <ul class="list-group" id="receivingOptionsList"></ul>
                 </div>
+                <br/>
             </div>
             <div class="col-md-9">
                 <div class="col-md-6">
                     <pre>
-                        <p>POST http://dev.geni.to:8001/api/v1/auth/<span id="phoneUrl"></span></p>
+                        <p id="step1Url">GET http://woc.reference.genitrust.com/api/v1/discoveryInputs/&lt;authToken&gt;/offers/</p>
                         <p id="step1Post"></p>
                     </pre>
                 </div>
@@ -89,22 +92,33 @@
                     </pre>
                 </div>
             </div>
-
         </div>
-        <h1>Step 2: Cash Receiving Options</h1>
+        <h1>Step 2: Create Hold</h1>
         <div class="row">
             <div class="col-md-3">
-                <button class="btn btn-block btn-primary btn-lg" id="getRecievingOptionsBtn">Get Recieving Options</button>
-                <br/>
-                <div class="list-container">
-                    <ul class="list-group" id="receivingOptionsList"></ul>
+                <div class="form-group">
+                    <label for="deviceName">Device Name:</label>
+                    <input id="deviceName" name="deviceName" type="text" class="form-control" value="Ref Client" />
                 </div>
+                <div class="form-group">
+                    <label for="deviceCode">Device Code:</label>
+                    <input id="deviceCode" name="deviceCode" type="text" class="form-control" />
+                </div>
+                <button class="btn btn-block btn-primary" id="createHoldBtn">Create Hold</button>
                 <br/>
+                <div class="form-group">
+                    <label for="holdId">Hold ID:</label>
+                    <input id="holdId" name="holdId" type="text" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="authToken">Token:</label>
+                    <input id="authToken" name="authToken" type="text" class="form-control" />
+                </div>
             </div>
             <div class="col-md-9">
                 <div class="col-md-6">
                     <pre>
-                        <p>GET http://dev.geni.to:8001/api/v1/banks/</p>
+                        <p id="step2Url">POST http://woc.reference.genitrust.com/api/v1/holds/</p>
                         <p id="step2Post"></p>
                     </pre>
                 </div>
@@ -116,33 +130,25 @@
                 </div>
             </div>
         </div>
-        <h1>Step 3: Create Address Alias</h1>
+        <h1>Step 3: Capture Hold</h1>
         <div class="row">
             <div class="col-md-3">
                 <div class="form-group">
-                    <label for="number">Account Number:</label>
-                    <input id="number" name="accountNumber" type="text" class="form-control" value="1234 5678 90" />
+                    <label for="smsCode">SMS Code:</label>
+                    <input id="smsCode" name="smsCode" type="text" class="form-control" />
                 </div>
-                <div class="form-group">
-                    <label for="number2">Confirm Account Number:</label>
-                    <input id="number2" name="accountNumber2" type="text" class="form-control" value="1234 5678 90" />
-                </div>
-                <div class="form-group">
-                    <label for="price">Current Price:</label>
-                    <input id="price" name="price" type="text" class="form-control" value="10" />
-                </div>
-                <button class="btn btn-block btn-primary btn-lg" id="adCreateBtn">Create Address Alias</button>
+                <button class="btn btn-block btn-primary" id="captureHoldBtn">Capture Hold</button>
                 <br/>
                 <div class="form-group">
-                    <label for="adId">Ad ID:</label>
-                    <input id="adId" type="text" class="form-control" disabled />
+                    <label for="orderId">Order ID:</label>
+                    <input id="orderId" name="orderId" type="text" class="form-control" />
                 </div>
             </div>
             <div class="col-md-9">
                 <div class="col-md-6">
                     <pre>
                         <p id="step3Header">HEADER X-Coins-Api-Token: </p>
-                        <p>POST http://dev.geni.to:8001/api/adcreate/</p>
+                        <p id="step3Url">POST http://woc.reference.genitrust.com/api/v1/holds/&lt;holdId&gt;/capture/</p>
                         <p id="step3Post"></p>
                     </pre>
                 </div>
@@ -154,16 +160,16 @@
                 </div>
             </div>
         </div>
-        <h1>Step 4: Send SMS Verification Code</h1>
+        <h1>Step 4: Confirm Deposit</h1>
         <div class="row">
             <div class="col-md-3">
-                <button class="btn btn-block btn-primary btn-lg" id="sendSmsBtn">Send SMS Code</button>
+                <button class="btn btn-block btn-primary" id="confirmDepositBtn">Confirm Deposit</button>
             </div>
             <div class="col-md-9">
                 <div class="col-md-6">
                     <pre>
                         <p id="step4Header">HEADER X-Coins-Api-Token: </p>
-                        <p>POST http://dev.geni.to:8001/api/sendVerification/</p>
+                        <p id="step4Url">POST http://woc.reference.genitrust.com/api/v1/orders/&lt;holdId&gt;/confirmDeposit/</p>
                         <p id="step4Post"></p>
                     </pre>
                 </div>
@@ -175,14 +181,55 @@
                 </div>
             </div>
         </div>
+        <h1>* Cancel Order</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary" id="cancelOrderBtn">Cancel Order</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p id="cancelHeader">HEADER X-Coins-Api-Token: </p>
+                        <p id="cancelUrl">DELETE http://woc.reference.genitrust.com/api/v1/orders/&lt;holdId&gt;/</p>
+                        <p id="cancelPost"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="cancelResponse"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>* Get Orders</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary" id="getOrdersBtn">Get Orders</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p id="ordersHeader">HEADER X-Coins-Api-Token: </p>
+                        <p id="ordersUrl">GET http://woc.reference.genitrust.com/api/v1/orders/</p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p>RESPONSE</p>
+                        <p id="ordersResponse"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
     </div>
     <footer class="footer">
         <div class="container-fluid">
             <p class="text-muted">&copy; 2014-2016 - Brought to you by Genitrust, Inc.</p>
         </div>
     </footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
     <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="main.js"></script>

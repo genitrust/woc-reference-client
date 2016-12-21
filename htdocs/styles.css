@@ -19,7 +19,10 @@ body{
     height: 60px;
     background-color: #f5f5f5;
 }
-.container-fluid .text-muted {
+.active .text-muted{
+    color: white;
+}
+.footer .container-fluid .text-muted {
     margin: 20px 0;
 }
 pre{
