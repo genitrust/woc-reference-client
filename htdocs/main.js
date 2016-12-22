@@ -1,5 +1,5 @@
 (function() {
-
+    var retry = 0;
     function getVal(id){
         return $(id).val();
     }
@@ -48,7 +48,7 @@
         $('#receivingOptionsList').append('<li id="option_'+cleanId(obj.id)+'" class="list-group-item"><span class="badge">'+obj.amount.BTC+' BTC</span>'+obj.bankName+' <span class="pull-right text-muted">'+obj.amount.bits+' bits&nbsp;&nbsp;</span></li>');
     }
     function cleanId(id) {
-        return id.replace('=', '');
+        return id.replace(/\=/g, '');
     }
     function setRequestHeader(request) {
         var token = getVal('#authToken');
@@ -245,7 +245,7 @@
             setText('#step2Url', 'POST '+reqUrl);
             var postData = {
                 publisherId: getVal('#publisherId'),
-                offer: offerId+'=',
+                offer: offerId+'='+(retry==1?'=':''),
                 phone: getVal('#phone'),
                 deviceName: getVal('#deviceName'),
                 deviceCode: getVal('#deviceCode')
@@ -256,6 +256,7 @@
                 data: postData,
                 method: 'POST',
                 success: function(data) {
+                    retry = 0;
                     setJson('#step2Response', data);
                     setVal('#smsCode', data.code);
                     setVal('#holdId', data.id);
@@ -264,6 +265,10 @@
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step2Code', 'RESPONSE '+xhr.status+' '+textStatus);
+                    if (xhr.status==500||textStatus=='error'){
+                        retry++;
+                        actions.createHold();
+                    }
                 }
             });
         },
