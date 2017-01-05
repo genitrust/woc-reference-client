@@ -1,10 +1,22 @@
 (function() {
-    var retry = 0;
+    var banks, payFields, dynamicFields;
+    var defaultPayFields = {
+        payFields: [
+            { "name": "accountName", "label": "Name on Account", "displaySort": 0 },
+            { "name": "accountNumber", "label": "Account #", "displaySort": 1 }
+        ],
+        confirmFields: [
+            { "name": "accountNumber", "label": "Confirm Account #", "displaySort": 0 }
+        ]
+    };
     function getVal(id){
         return $(id).val();
     }
     function setVal(id, val){
         return $(id).val(val);
+    }
+    function setHtml(id, val){
+        return $(id).html(val);
     }
     function setText(id, val){
         return $(id).text(val);
@@ -32,10 +44,86 @@
         $('#receivingOptionsList li').on('click', selectOption);
     }
     function displayBankOptions(options) {
-        $('#banks').html('<option value=""></option>');
+        $('#banks').html('<option value="">Select Payment Center</option>');
         for(var i=0;i<options.length;i++){
             $('#banks').append('<option value="'+options[i].id+'">'+options[i].name+'</option>');
         }
+        $('#banks').change(displayPayFields);
+    }
+    function displayPayFields() {
+        var val = this.value;
+        $('#triggerContainer').hide();
+        setHtml('#payFields', '');
+        var bank = _.find(banks, function(o) { return o.id == val; });
+        if (!bank.payFields){
+            payFields = orderPayFields(defaultPayFields);
+        }else{
+            payFields = orderPayFields(bank.payFields);
+            dynamicFields = orderDynamicFields(bank.payFields);
+            if (bank.payFields.trigger.length > 0){
+                setHtml('#triggerText', bank.payFields.trigger);
+                $('#triggerContainer').show();
+                $('#trigger').change(function() {
+                    if($(this).is(":checked")) {
+                        $('#payFields').hide();
+                        $('#dynamicFields').show();
+                    }else{
+                        $('#dynamicFields').hide();
+                        $('#payFields').show();
+                    }
+                });
+            }
+        }
+        _.each(payFields, renderPayField);
+        _.each(dynamicFields, renderDynamicField);
+    }
+    function renderPayField(payField){
+        var html = '<div class="form-group">'
+        html += '<label for="name">'+payField.label+'</label>'
+        html += '<input id="'+payField.name+'_pay" name="'+payField.name+'" type="text" placeholder="'+payField.label+'" class="form-control" />'
+        html += '</div>'
+        $('#payFields').append(html);
+    }
+    function renderDynamicField(payField){
+        var html = '<div class="form-group">'
+        html += '<label for="name">'+payField.label+'</label>'
+        html += '<input id="'+payField.name+'_dynamic" name="'+payField.name+'" type="text" placeholder="'+payField.label+'" class="form-control" />'
+        html += '</div>'
+        $('#dynamicFields').append(html);
+    }
+    function orderPayFields(payFields){
+        var ordered = _.orderBy(payFields.payFields, 'displaySort', 'asc');
+        var confirms = [];
+        _.each(payFields.payFields, function(payField){
+            confirms.push(payField);
+            var confirm = _.find(payFields.confirmFields, function(o) { return o.name == payField.name; });
+            if (confirm){
+                confirms.push(confirm);
+            }
+        });
+        return confirms;
+    }
+    function orderDynamicFields(payFields){
+        var ordered = _.orderBy(payFields.dynamicFields, 'displaySort', 'asc');
+        var confirms = [];
+        _.each(payFields.dynamicFields, function(payField){
+            confirms.push(payField);
+            var confirm = _.find(payFields.confirmFields, function(o) { return o.name == payField.name; });
+            if (confirm){
+                confirms.push(confirm);
+            }
+        });
+        return confirms;
+    }
+    function getPostDataFromPayFields(postData) {
+        _.each(payFields, function(payField){
+            postData['payfield_'+payField.name] = getVal('#'+payField.name+'_pay');
+        });
+        _.each(dynamicFields, function(payField){
+            postData['payfield_'+payField.name] = getVal('#'+payField.name+'_dynamic');
+        });
+        postData.usePayFields = 1
+        return postData;
     }
     function selectOption(e) {
         $('.list-group-item').removeClass('active');
@@ -54,7 +142,7 @@
         var token = getVal('#authToken');
         if (token != '') {
             request.setRequestHeader('x-coins-api-token', token);
-            // request.setRequestHeader('content-type', 'application/json');
+            //   request.setRequestHeader('content-type', 'application/json');
             request.cross;
         }
     }
@@ -77,6 +165,9 @@
                 success: function(data) {
                     setJson('#step0Response', data);
                     setText('#phoneUrl', (data.phone[0]=='+'?data.phone.substring(1):data.phone))
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step0Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -93,6 +184,9 @@
                 success: function(data) {
                     setJson('#step1Response', data);
                     setVal('#authToken', data.token);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step0Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -100,8 +194,12 @@
             $.ajax({
                 url: getVal('#apiUrl') + '/api/v1/banks/',
                 success: function(data) {
+                    banks = data;
                     setJson('#step2Response', data);
-                    displayRecievingOptions(data);
+                    displayBankOptions(data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step2Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -110,14 +208,12 @@
             var postData = {
                 'phone': getVal('#phone').substring(2),
                 'email': getVal('#email'),
-                'name': getVal('#name'),
                 'phoneCode': '1',
-                'bankBusiness': getRecievingOption(),
-                'number': getVal('#number'),
-                'number2': getVal('#number2'),
+                'bankBusiness': getVal('#banks'),
                 'sellCrypto': getCrypto(),
                 'currentPrice': getVal('#price')
             };
+            postData = getPostDataFromPayFields(postData);
             setJson('#step3Post', postData);
             $.ajax({
                 url: getVal('#apiUrl') + '/api/adcreate/',
@@ -127,6 +223,10 @@
                 success: function(data) {
                     setJson('#step3Response', data);
                     setVal('#adId', data.id);
+                    setText('#step6Put', 'PUT ' + getVal('#apiUrl') + '/api/v1/ad/' + data.id + '/')
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step3Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -145,6 +245,9 @@
                 success: function(data) {
                     setVal('#smsCode', data.__CASH_CODE)
                     setJson('#step4Response', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step4Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -163,6 +266,10 @@
                 method: 'POST',
                 success: function(data) {
                     setJson('#step5Response', data);
+                    $('#qrcode').qrcode(data.fundingAddress);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step5Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -170,16 +277,19 @@
             setText('#step6Header', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'))
             var postData = {
                 'adId': getVal('#adId'),
-                'rate': getVal('#updatedAdRate')
+                'currentPrice': getVal('#updatedAdRate')
             };
             setJson('#step6Post', postData);
             $.ajax({
-                url: getVal('#apiUrl') + '/api/updateAdRate/',
+                url: getVal('#apiUrl') + '/api/v1/ad/' + getVal('#adId') + '/',
                 data: postData,
                 beforeSend: setRequestHeader,
                 method: 'PUT',
                 success: function(data) {
                     setJson('#step6Response', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step6Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -238,6 +348,10 @@
             });
         },
         createHold: function () {
+            if (getVal('#authToken').length>20){
+                $('#step2Header').show()
+                setText('#step2Header', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
+            }
             var reqUrl = getVal('#apiUrl')+'/api/v1/holds/';
             var offerId = getRecievingOption();
             if (!offerId)
@@ -245,7 +359,7 @@
             setText('#step2Url', 'POST '+reqUrl);
             var postData = {
                 publisherId: getVal('#publisherId'),
-                offer: offerId+'='+(retry==1?'=':''),
+                offer: offerId+'==',
                 phone: getVal('#phone'),
                 deviceName: getVal('#deviceName'),
                 deviceCode: getVal('#deviceCode')
@@ -254,9 +368,9 @@
             $.ajax({
                 url: reqUrl,
                 data: postData,
+                beforeSend: (getVal('#authToken').length>20?setRequestHeader:null),
                 method: 'POST',
                 success: function(data) {
-                    retry = 0;
                     setJson('#step2Response', data);
                     setVal('#smsCode', data.code);
                     setVal('#holdId', data.id);
@@ -265,10 +379,6 @@
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step2Code', 'RESPONSE '+xhr.status+' '+textStatus);
-                    if (xhr.status==500||textStatus=='error'){
-                        retry++;
-                        actions.createHold();
-                    }
                 }
             });
         },
