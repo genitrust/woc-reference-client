@@ -122,7 +122,7 @@
         _.each(dynamicFields, function(payField){
             postData['payfield_'+payField.name] = getVal('#'+payField.name+'_dynamic');
         });
-        postData.usePayFields = 1
+        postData.usePayFields = true
         return postData;
     }
     function selectOption(e) {
