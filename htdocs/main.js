@@ -2,11 +2,9 @@
     var banks, payFields, dynamicFields;
     var defaultPayFields = {
         payFields: [
-            { "name": "accountName", "label": "Name on Account", "displaySort": 0 },
-            { "name": "accountNumber", "label": "Account #", "displaySort": 1 }
-        ],
-        confirmFields: [
-            { "name": "accountNumber", "label": "Confirm Account #", "displaySort": 0 }
+            { "name": "name", "label": "Name on Account", "displaySort": 0 },
+            { "name": "number", "label": "Account #", "displaySort": 1 },
+            { "name": "number2", "label": "Confirm Account #", "displaySort": 2 }
         ]
     };
     function getVal(id){
@@ -56,7 +54,9 @@
         setHtml('#payFields', '');
         var bank = _.find(banks, function(o) { return o.id == val; });
         if (!bank.payFields){
-            payFields = orderPayFields(defaultPayFields);
+            payFields = undefined;
+            dynamicFields = undefined;
+            _.each(orderPayFields(defaultPayFields), renderPayField);
         }else{
             payFields = orderPayFields(bank.payFields);
             dynamicFields = orderDynamicFields(bank.payFields);
@@ -122,7 +122,7 @@
         _.each(dynamicFields, function(payField){
             postData['payfield_'+payField.name] = getVal('#'+payField.name+'_dynamic');
         });
-        postData.usePayFields = 1
+        postData.usePayFields = true
         return postData;
     }
     function selectOption(e) {
@@ -213,7 +213,13 @@
                 'sellCrypto': getCrypto(),
                 'currentPrice': getVal('#price')
             };
-            postData = getPostDataFromPayFields(postData);
+            if (payFields!=undefined) {
+                postData = getPostDataFromPayFields(postData);
+            } else {
+                postData.name = getVal('#name_pay');
+                postData.number = getVal('#number_pay');
+                postData.number2 = getVal('#number2_pay');
+            }
             setJson('#step3Post', postData);
             $.ajax({
                 url: getVal('#apiUrl') + '/api/adcreate/',
