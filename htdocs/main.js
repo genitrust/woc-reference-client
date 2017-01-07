@@ -27,7 +27,7 @@
     function getCrypto() {
         return ($('#crypto').is(':checked')?'DASH':'BTC');
     }
-    function getRecievingOption() {
+    function getReceivingOption() {
         var id = $('#receivingOptionsList .active').attr('id');
         if (id)
             return id.substring(7);
@@ -190,7 +190,7 @@
                 }
             });
         },
-        getRecievingOptions: function () {
+        getReceivingOptions: function () {
             $.ajax({
                 url: getVal('#apiUrl') + '/api/v1/banks/',
                 success: function(data) {
@@ -353,7 +353,7 @@
                 setText('#step2Header', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
             }
             var reqUrl = getVal('#apiUrl')+'/api/v1/holds/';
-            var offerId = getRecievingOption();
+            var offerId = getReceivingOption();
             if (!offerId)
                 return alert('Please select an offer.');
             setText('#step2Url', 'POST '+reqUrl);
@@ -454,7 +454,7 @@
         var clickHandlers = [
             'getAuthToken',
             'authUser',
-            'getRecievingOptions',
+            'getReceivingOptions',
             'adCreate',
             'sendSms',
             'verifyAd',
