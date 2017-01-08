@@ -37,10 +37,11 @@
     function displayRecievingOptions(options, offers) {
         $('#receivingOptionsList').html("");
         for(var i=0;i<options.length;i++){
-            if (offers)
+            if (offers){
                 renderOffer(options[i]);
-            else
+            } else {
                 renderOption(options[i]);
+            }
         }
         $('#receivingOptionsList li').on('click', selectOption);
     }
@@ -50,6 +51,14 @@
             $('#banks').append('<option value="'+options[i].id+'">'+options[i].name+'</option>');
         }
         $('#banks').change(displayPayFields);
+    }
+    function displayMarketOptions(options) {
+        $('#primaryMarket').html('<option value="">Select Primary Market</option>');
+        $('#secondaryMarket').html('<option value="">Select Secondary Market</option>');
+        for(var i=0;i<options.length;i++){
+            $('#primaryMarket').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
+            $('#secondaryMarket').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
+        }
     }
     function displayPayFields() {
         var val = this.value;
@@ -118,6 +127,16 @@
         });
         return confirms;
     }
+    function dynamicPricingToggle() {
+        if (dynamicPricing()) {
+            $('#staticPricingContainer').hide();
+            $('#dynamicPricingContainer').show();
+            actions.getMarkets();
+        } else {
+            $('#dynamicPricingContainer').hide();
+            $('#staticPricingContainer').show();
+        }
+    }
     function getPricingPostData(postData) {
         if (dynamicPricing()) {
             postData.dynamicPrice = true;
@@ -125,10 +144,13 @@
             postData.secondaryMarket = getVal('#secondaryMarket');
             postData.minPayment = getVal('#minPayment');
             postData.maxPayment = getVal('#maxPayment');
+            postData.sellerFee = getVal('#sellerFee');
+            postData.currentPrice = getVal('#price');
         } else {
             postData.dynamicPrice = false;
             postData.currentPrice = getVal('#price');
         }
+        return postData;
     }
     function getPostDataFromPayFields(postData) {
         _.each(payFields, function(payField){
@@ -219,8 +241,15 @@
             });
         },
         getReceivingOptions: function () {
+            var getUrl;
+            if (getVal('#country')) {
+                getUrl = getVal('#apiUrl') + '/api/v1/banks/?country=' + getVal('#country').toLowerCase();
+            } else {
+                getUrl = getVal('#apiUrl') + '/api/v1/banks/'
+            }
+            setText('#step2Url', 'GET ' + getUrl);
             $.ajax({
-                url: getVal('#apiUrl') + '/api/v1/banks/',
+                url: getUrl,
                 success: function(data) {
                     banks = data;
                     setJson('#step2Response', data);
@@ -228,6 +257,20 @@
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step2Code', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        getMarkets: function () {
+            var pricingUrl = getVal('#apiUrl') + '/api/v1/markets/' + getCrypto() + '/USD/';
+            setText('#pricingUrl', 'POST ' + pricingUrl);
+            $.ajax({
+                url: pricingUrl,
+                success: function(data) {
+                    setJson('#pricingResponse', data);
+                    displayMarketOptions(data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#pricingCode', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -540,6 +583,7 @@
         for (var i=0;i<clickHandlers.length;i++){
             $('#'+clickHandlers[i]+'Btn').click(actions[clickHandlers[i]]);
         }
+        $('#dynamicPricingCheckbox').change(dynamicPricingToggle);
         var phone = initPhone();
         setVal('#phone', '+1'+phone);
         setVal('#deviceCode', phone+phone+phone+phone+phone);
