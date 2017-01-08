@@ -22,6 +22,9 @@
     function setJson(id, val){
         return $(id).text(JSON.stringify(val, null, 2));
     }
+    function dynamicPricing() {
+        return $('#dynamicPricingCheckbox').is(':checked');
+    }
     function getCrypto() {
         return ($('#crypto').is(':checked')?'DASH':'BTC');
     }
@@ -115,6 +118,18 @@
         });
         return confirms;
     }
+    function getPricingPostData(postData) {
+        if (dynamicPricing()) {
+            postData.dynamicPrice = true;
+            postData.primaryMarket = getVal('#primaryMarket');
+            postData.secondaryMarket = getVal('#secondaryMarket');
+            postData.minPayment = getVal('#minPayment');
+            postData.maxPayment = getVal('#maxPayment');
+        } else {
+            postData.dynamicPrice = false;
+            postData.currentPrice = getVal('#price');
+        }
+    }
     function getPostDataFromPayFields(postData) {
         _.each(payFields, function(payField){
             postData['payfield_'+payField.name] = getVal('#'+payField.name+'_pay');
@@ -145,6 +160,19 @@
             //   request.setRequestHeader('content-type', 'application/json');
             request.cross;
         }
+    }
+    function pollPendingBalance() {
+        var adId = getVal('#adId');
+        setInterval(function(){
+            $.ajax({
+                url: getVal('#apiUrl') + '/api/v1/ad/' + adId + '/pendingBalance/',
+                beforeSend: setRequestHeader,
+                method: 'GET',
+                success: function(data) {
+                    setText('#pendingBalance', 'Balance: ' + data.balance);
+                }
+            });
+        },10000)
     }
     function initPhone() {
         return "941" + (Math.floor(Math.random()*9000000) + 1000000);
@@ -211,8 +239,9 @@
                 'phoneCode': '1',
                 'bankBusiness': getVal('#banks'),
                 'sellCrypto': getCrypto(),
-                'currentPrice': getVal('#price')
+                'userEnabled': true
             };
+            postData = getPricingPostData(postData);
             if (payFields!=undefined) {
                 postData = getPostDataFromPayFields(postData);
             } else {
@@ -273,6 +302,7 @@
                 success: function(data) {
                     setJson('#step5Response', data);
                     $('#qrcode').qrcode(data.fundingAddress);
+                    pollPendingBalance();
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step5Code', 'RESPONSE '+xhr.status+' '+textStatus);
@@ -296,6 +326,38 @@
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step6Code', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        confirm: function () {
+            var confirmUrl = getVal('#apiUrl') + '/api/v1/incomingOrders/' + getVal('#adId') + '/confirmDeposit/';
+            setText('#confirmHeader', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
+            setText('#confirmUrl', 'POST ' + confirmUrl);
+            $.ajax({
+                url: confirmUrl,
+                beforeSend: setRequestHeader,
+                method: 'POST',
+                success: function(data) {
+                    setJson('#confirmResponse', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#confirmCode', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        deny: function () {
+            var denyUrl = getVal('#apiUrl') + '/api/v1/incomingOrders/' + getVal('#adId') + '/invalidateDeposit/';
+            setText('#confirmHeader', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
+            setText('#confirmUrl', 'POST ' + denyUrl);
+            $.ajax({
+                url: denyUrl,
+                beforeSend: setRequestHeader,
+                method: 'POST',
+                success: function(data) {
+                    setJson('#confirmResponse', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#confirmCode', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -465,6 +527,7 @@
             'sendSms',
             'verifyAd',
             'updateAdRate',
+            'confirm',
             'getBanks',
             'discovery',
             'getOffers',

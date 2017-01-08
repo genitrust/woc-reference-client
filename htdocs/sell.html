@@ -123,9 +123,34 @@
         <h1>Step 3: Create Ad</h1>
         <div class="row">
             <div class="col-md-3">
-                <div class="form-group">
-                    <label for="price">Static Price:</label>
-                    <input id="price" name="price" type="text" class="form-control" value="10" />
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="dynamicPricingCheckbox">Use Dynamic Pricing?
+                    </label>
+                </div>
+                <div id="staticPricingContainer">
+                    <div class="form-group">
+                        <label for="price">Static Price:</label>
+                        <input id="price" name="price" type="text" class="form-control" value="10" />
+                    </div>
+                </div>
+                <div id="dynamicPricingContainer">
+                    <div class="form-group">
+                        <label for="primaryMarket">Primary Market:</label>
+                        <select class="form-control" id="primaryMarket"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="secondaryMarket">Secondary Market:</label>
+                        <select class="form-control" id="secondaryMarket"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="minPayment">Minimum Payment:</label>
+                        <input id="minPayment" name="minPayment" type="text" class="form-control" value="10" />
+                    </div>
+                    <div class="form-group">
+                        <label for="maxPayment">Maximum Payment:</label>
+                        <input id="maxPayment" name="maxPayment" type="text" class="form-control" value="1000" />
+                    </div>
                 </div>
                 <button class="btn btn-block btn-primary btn-lg" id="adCreateBtn">Create Address Alias</button>
                 <br/>
@@ -181,7 +206,10 @@
             <div class="col-md-3">
                 <button class="btn btn-block btn-primary btn-lg" id="verifyAdBtn">Verify Ad</button>
                 <br/>
-                <div id="qrcode" style="width:256px;margin: 0 auto;"></div>
+                <div class="well">
+                    <div id="qrcode" style="width:256px;margin: 0 auto;"></div>
+                    <h2 class="text-center" id="pendingBalance"></h2>
+                </div>
             </div>
             <div class="col-md-9">
                 <div class="col-md-6">
@@ -221,6 +249,48 @@
                     <pre>
                         <p id="step6Code">RESPONSE</p>
                         <p id="step6Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>* Confirm Payment</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary" id="confirmBtn">Confirm Payment</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p id="confirmHeader">HEADER X-Coins-Api-Token: </p>
+                        <p id="confirmUrl">POST http://dev.geni.to:8001/api/v1/incomingOrders/&lt;adId&gt;/confirmDeposit/</p>
+                        <p id="confirmPost"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p id="confirmCode">RESPONSE</p>
+                        <p id="confirmResponse"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>* Deny Deposit</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary" id="denyBtn">Deny Deposit</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p id="denyHeader">HEADER X-Coins-Api-Token: </p>
+                        <p id="denyUrl">POST http://dev.geni.to:8001/api/v1/incomingOrders/&lt;adId&gt;/invalidateDeposit/</p>
+                        <p id="denyPost"></p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p id="denyCode">RESPONSE</p>
+                        <p id="denyResponse"></p>
                     </pre>
                 </div>
             </div>
