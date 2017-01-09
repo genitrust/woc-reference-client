@@ -89,9 +89,9 @@
         <div class="row">
             <div class="col-md-3">
                 <div class="form-group">
-                    <label for="country">Auth Token:</label>
+                    <label for="country">Select Country:</label>
                     <select id="country" class="form-control">
-                        <option>Select Country</option>
+                        <option value="">Select Country</option>
                         <option value="US">United States</option>
                         <option value="AF">Afghanistan</option>
                         <option value="AX">Åland Islands</option>
@@ -432,7 +432,7 @@
                 <br/>
                 <div class="form-group">
                     <label for="adId">Ad ID:</label>
-                    <input id="adId" type="text" class="form-control" disabled />
+                    <input id="adId" type="text" class="form-control" />
                 </div>
             </div>
             <div class="col-md-9">
@@ -484,7 +484,15 @@
                 <br/>
                 <div class="well">
                     <div id="qrcode" style="width:256px;margin: 0 auto;"></div>
-                    <h2 class="text-center" id="pendingBalance"></h2>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6"><button class="btn btn-primary btn-block" id="getBalanceBtn">Get Balance</button></div>
+                    <div class="col-xs-6" id="pendingBalance"></div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-xs-6"><button class="btn btn-primary btn-block" id="getDepositsBtn">Get Deposits</button></div>
+                    <div class="col-xs-6" id="pendingDeposits"></div>
                 </div>
             </div>
             <div class="col-md-9">
@@ -506,9 +514,39 @@
         <h1>Step 6: Update Ad Rate</h1>
         <div class="row">
             <div class="col-md-3">
-                <div class="form-group">
-                    <label for="updatedAdRate">New Price:</label>
-                    <input id="updatedAdRate" name="price" type="text" class="form-control" value="9" />
+                <div class="checkbox">
+                    <label><input type="checkbox" id="dynamicPricingCheckbox2">Use Dynamic Pricing?</label>
+                </div>
+                <div id="staticPricingContainer2">
+                    <div class="form-group">
+                        <label for="price2">Static Price:</label>
+                        <input id="price2" name="price" type="text" class="form-control" value="20" />
+                    </div>
+                </div>
+                <div id="dynamicPricingContainer2" style="display:none;">
+                    <div class="form-group">
+                        <label for="primaryMarket2">Primary Market:</label>
+                        <select class="form-control" id="primaryMarket2"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="secondaryMarket2">Secondary Market:</label>
+                        <select class="form-control" id="secondaryMarket2"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="minPayment2">Minimum Payment:</label>
+                        <input id="minPayment2" class="form-control" value="10" />
+                    </div>
+                    <div class="form-group">
+                        <label for="maxPayment2">Maximum Payment:</label>
+                        <input id="maxPayment2" class="form-control" value="1000" />
+                    </div>
+                    <div class="form-group">
+                        <label for="sellerFee2">Seller Fee</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="sellerFee2" placeholder="Seller Fee">
+                            <div class="input-group-addon">%</div>
+                        </div>
+                    </div>
                 </div>
                 <br/>
                 <button class="btn btn-block btn-primary btn-lg" id="updateAdRateBtn">Update Ad Rate</button>
@@ -525,6 +563,26 @@
                     <pre>
                         <p id="step6Code">RESPONSE</p>
                         <p id="step6Response"></p>
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <h1>Step 7: Incoming Payments</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-block btn-primary btn-lg" id="incomingPaymentsBtn">Get Incoming Payments</button>
+            </div>
+            <div class="col-md-9">
+                <div class="col-md-6">
+                    <pre>
+                        <p id="step7Header">HEADER X-Coins-Api-Token: </p>
+                        <p id="step7Get">GET http://dev.geni.to:8001/api/v1/incomingOrders/</p>
+                    </pre>
+                </div>
+                <div class="col-md-6">
+                    <pre>
+                        <p id="step7Code">RESPONSE</p>
+                        <p id="step7Response"></p>
                     </pre>
                 </div>
             </div>

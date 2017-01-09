@@ -25,6 +25,9 @@
     function dynamicPricing() {
         return $('#dynamicPricingCheckbox').is(':checked');
     }
+    function dynamicPricing2() {
+        return $('#dynamicPricingCheckbox2').is(':checked');
+    }
     function getCrypto() {
         return ($('#crypto').is(':checked')?'DASH':'BTC');
     }
@@ -55,9 +58,13 @@
     function displayMarketOptions(options) {
         $('#primaryMarket').html('<option value="">Select Primary Market</option>');
         $('#secondaryMarket').html('<option value="">Select Secondary Market</option>');
+        $('#primaryMarket2').html('<option value="">Select Primary Market</option>');
+        $('#secondaryMarket2').html('<option value="">Select Secondary Market</option>');
         for(var i=0;i<options.length;i++){
             $('#primaryMarket').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
             $('#secondaryMarket').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
+            $('#primaryMarket2').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
+            $('#secondaryMarket2').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
         }
     }
     function displayPayFields() {
@@ -152,6 +159,31 @@
         }
         return postData;
     }
+    function dynamicPricingToggle2() {
+        if (dynamicPricing2()) {
+            $('#staticPricingContainer2').hide();
+            $('#dynamicPricingContainer2').show();
+            actions.getMarkets();
+        } else {
+            $('#dynamicPricingContainer2').hide();
+            $('#staticPricingContainer2').show();
+        }
+    }
+    function getPricingPostData2(postData) {
+        if (dynamicPricing2()) {
+            postData.dynamicPrice = true;
+            postData.primaryMarket = getVal('#primaryMarket2');
+            postData.secondaryMarket = getVal('#secondaryMarket2');
+            postData.minPayment = getVal('#minPayment2');
+            postData.maxPayment = getVal('#maxPayment2');
+            postData.sellerFee = getVal('#sellerFee2');
+            postData.currentPrice = getVal('#price2');
+        } else {
+            postData.dynamicPrice = false;
+            postData.currentPrice = getVal('#price2');
+        }
+        return postData;
+    }
     function getPostDataFromPayFields(postData) {
         _.each(payFields, function(payField){
             postData['payfield_'+payField.name] = getVal('#'+payField.name+'_pay');
@@ -182,19 +214,6 @@
             //   request.setRequestHeader('content-type', 'application/json');
             request.cross;
         }
-    }
-    function pollPendingBalance() {
-        var adId = getVal('#adId');
-        setInterval(function(){
-            $.ajax({
-                url: getVal('#apiUrl') + '/api/v1/ad/' + adId + '/pendingBalance/',
-                beforeSend: setRequestHeader,
-                method: 'GET',
-                success: function(data) {
-                    setText('#pendingBalance', 'Balance: ' + data.balance);
-                }
-            });
-        },10000)
     }
     function initPhone() {
         return "941" + (Math.floor(Math.random()*9000000) + 1000000);
@@ -345,10 +364,29 @@
                 success: function(data) {
                     setJson('#step5Response', data);
                     $('#qrcode').qrcode(data.fundingAddress);
-                    pollPendingBalance();
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step5Code', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        getBalance: function () {
+            $.ajax({
+                url: getVal('#apiUrl') + '/api/v1/ad/' + getVal('#adId') + '/pendingBalance/',
+                beforeSend: setRequestHeader,
+                method: 'GET',
+                success: function(data) {
+                    setText('#pendingBalance', 'Balance: ' + data.balance);
+                }
+            });
+        },
+        getDeposits: function () {
+            $.ajax({
+                url: getVal('#apiUrl') + '/api/v1/ad/' + getVal('#adId') + '/',
+                beforeSend: setRequestHeader,
+                method: 'GET',
+                success: function(data) {
+                    setText('#pendingDeposits', 'Deposits: ' + data.publicBalance);
                 }
             });
         },
@@ -356,8 +394,9 @@
             setText('#step6Header', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'))
             var postData = {
                 'adId': getVal('#adId'),
-                'currentPrice': getVal('#updatedAdRate')
+                'currentPrice': getVal('#price2')
             };
+            postData = getPricingPostData2(postData);
             setJson('#step6Post', postData);
             $.ajax({
                 url: getVal('#apiUrl') + '/api/v1/ad/' + getVal('#adId') + '/',
@@ -369,6 +408,20 @@
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step6Code', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        incomingPayments: function () {
+            setText('#step7Header', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'))
+            $.ajax({
+                url: getVal('#apiUrl') + '/api/v1/incomingOrders/',
+                beforeSend: setRequestHeader,
+                method: 'GET',
+                success: function(data) {
+                    setJson('#step7Response', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step7Code', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -569,7 +622,10 @@
             'adCreate',
             'sendSms',
             'verifyAd',
+            'getBalance',
+            'getDeposits',
             'updateAdRate',
+            'incomingPayments',
             'confirm',
             'getBanks',
             'discovery',
@@ -584,6 +640,7 @@
             $('#'+clickHandlers[i]+'Btn').click(actions[clickHandlers[i]]);
         }
         $('#dynamicPricingCheckbox').change(dynamicPricingToggle);
+        $('#dynamicPricingCheckbox2').change(dynamicPricingToggle2);
         var phone = initPhone();
         setVal('#phone', '+1'+phone);
         setVal('#deviceCode', phone+phone+phone+phone+phone);
