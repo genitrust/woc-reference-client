@@ -2,11 +2,9 @@
     var banks, payFields, dynamicFields;
     var defaultPayFields = {
         payFields: [
-            { "name": "accountName", "label": "Name on Account", "displaySort": 0 },
-            { "name": "accountNumber", "label": "Account #", "displaySort": 1 }
-        ],
-        confirmFields: [
-            { "name": "accountNumber", "label": "Confirm Account #", "displaySort": 0 }
+            { "name": "name", "label": "Name on Account", "displaySort": 0 },
+            { "name": "number", "label": "Account #", "displaySort": 1 },
+            { "name": "number2", "label": "Confirm Account #", "displaySort": 2 }
         ]
     };
     function getVal(id){
@@ -24,6 +22,12 @@
     function setJson(id, val){
         return $(id).text(JSON.stringify(val, null, 2));
     }
+    function dynamicPricing() {
+        return $('#dynamicPricingCheckbox').is(':checked');
+    }
+    function dynamicPricing2() {
+        return $('#dynamicPricingCheckbox2').is(':checked');
+    }
     function getCrypto() {
         return ($('#crypto').is(':checked')?'DASH':'BTC');
     }
@@ -36,10 +40,11 @@
     function displayRecievingOptions(options, offers) {
         $('#receivingOptionsList').html("");
         for(var i=0;i<options.length;i++){
-            if (offers)
+            if (offers){
                 renderOffer(options[i]);
-            else
+            } else {
                 renderOption(options[i]);
+            }
         }
         $('#receivingOptionsList li').on('click', selectOption);
     }
@@ -50,13 +55,27 @@
         }
         $('#banks').change(displayPayFields);
     }
+    function displayMarketOptions(options) {
+        $('#primaryMarket').html('<option value="">Select Primary Market</option>');
+        $('#secondaryMarket').html('<option value="">Select Secondary Market</option>');
+        $('#primaryMarket2').html('<option value="">Select Primary Market</option>');
+        $('#secondaryMarket2').html('<option value="">Select Secondary Market</option>');
+        for(var i=0;i<options.length;i++){
+            $('#primaryMarket').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
+            $('#secondaryMarket').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
+            $('#primaryMarket2').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
+            $('#secondaryMarket2').append('<option value="'+options[i].id+'">'+options[i].label+'</option>');
+        }
+    }
     function displayPayFields() {
         var val = this.value;
         $('#triggerContainer').hide();
         setHtml('#payFields', '');
         var bank = _.find(banks, function(o) { return o.id == val; });
         if (!bank.payFields){
-            payFields = orderPayFields(defaultPayFields);
+            payFields = undefined;
+            dynamicFields = undefined;
+            _.each(orderPayFields(defaultPayFields), renderPayField);
         }else{
             payFields = orderPayFields(bank.payFields);
             dynamicFields = orderDynamicFields(bank.payFields);
@@ -114,6 +133,56 @@
             }
         });
         return confirms;
+    }
+    function dynamicPricingToggle() {
+        if (dynamicPricing()) {
+            $('#staticPricingContainer').hide();
+            $('#dynamicPricingContainer').show();
+            actions.getMarkets();
+        } else {
+            $('#dynamicPricingContainer').hide();
+            $('#staticPricingContainer').show();
+        }
+    }
+    function getPricingPostData(postData) {
+        if (dynamicPricing()) {
+            postData.dynamicPrice = true;
+            postData.primaryMarket = getVal('#primaryMarket');
+            postData.secondaryMarket = getVal('#secondaryMarket');
+            postData.minPayment = getVal('#minPayment');
+            postData.maxPayment = getVal('#maxPayment');
+            postData.sellerFee = getVal('#sellerFee');
+            postData.currentPrice = getVal('#price');
+        } else {
+            postData.dynamicPrice = false;
+            postData.currentPrice = getVal('#price');
+        }
+        return postData;
+    }
+    function dynamicPricingToggle2() {
+        if (dynamicPricing2()) {
+            $('#staticPricingContainer2').hide();
+            $('#dynamicPricingContainer2').show();
+            actions.getMarkets();
+        } else {
+            $('#dynamicPricingContainer2').hide();
+            $('#staticPricingContainer2').show();
+        }
+    }
+    function getPricingPostData2(postData) {
+        if (dynamicPricing2()) {
+            postData.dynamicPrice = true;
+            postData.primaryMarket = getVal('#primaryMarket2');
+            postData.secondaryMarket = getVal('#secondaryMarket2');
+            postData.minPayment = getVal('#minPayment2');
+            postData.maxPayment = getVal('#maxPayment2');
+            postData.sellerFee = getVal('#sellerFee2');
+            postData.currentPrice = getVal('#price2');
+        } else {
+            postData.dynamicPrice = false;
+            postData.currentPrice = getVal('#price2');
+        }
+        return postData;
     }
     function getPostDataFromPayFields(postData) {
         _.each(payFields, function(payField){
@@ -191,8 +260,15 @@
             });
         },
         getReceivingOptions: function () {
+            var getUrl;
+            if (getVal('#country')) {
+                getUrl = getVal('#apiUrl') + '/api/v1/banks/?country=' + getVal('#country').toLowerCase();
+            } else {
+                getUrl = getVal('#apiUrl') + '/api/v1/banks/'
+            }
+            setText('#step2Url', 'GET ' + getUrl);
             $.ajax({
-                url: getVal('#apiUrl') + '/api/v1/banks/',
+                url: getUrl,
                 success: function(data) {
                     banks = data;
                     setJson('#step2Response', data);
@@ -200,6 +276,20 @@
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step2Code', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        getMarkets: function () {
+            var pricingUrl = getVal('#apiUrl') + '/api/v1/markets/' + getCrypto() + '/USD/';
+            setText('#pricingUrl', 'POST ' + pricingUrl);
+            $.ajax({
+                url: pricingUrl,
+                success: function(data) {
+                    setJson('#pricingResponse', data);
+                    displayMarketOptions(data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#pricingCode', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -211,9 +301,16 @@
                 'phoneCode': '1',
                 'bankBusiness': getVal('#banks'),
                 'sellCrypto': getCrypto(),
-                'currentPrice': getVal('#price')
+                'userEnabled': true
             };
-            postData = getPostDataFromPayFields(postData);
+            postData = getPricingPostData(postData);
+            if (payFields!=undefined) {
+                postData = getPostDataFromPayFields(postData);
+            } else {
+                postData.name = getVal('#name_pay');
+                postData.number = getVal('#number_pay');
+                postData.number2 = getVal('#number2_pay');
+            }
             setJson('#step3Post', postData);
             $.ajax({
                 url: getVal('#apiUrl') + '/api/adcreate/',
@@ -273,12 +370,33 @@
                 }
             });
         },
+        getBalance: function () {
+            $.ajax({
+                url: getVal('#apiUrl') + '/api/v1/ad/' + getVal('#adId') + '/pendingBalance/',
+                beforeSend: setRequestHeader,
+                method: 'GET',
+                success: function(data) {
+                    setText('#pendingBalance', 'Balance: ' + data.balance);
+                }
+            });
+        },
+        getDeposits: function () {
+            $.ajax({
+                url: getVal('#apiUrl') + '/api/v1/ad/' + getVal('#adId') + '/',
+                beforeSend: setRequestHeader,
+                method: 'GET',
+                success: function(data) {
+                    setText('#pendingDeposits', 'Deposits: ' + data.publicBalance);
+                }
+            });
+        },
         updateAdRate: function () {
             setText('#step6Header', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'))
             var postData = {
                 'adId': getVal('#adId'),
-                'currentPrice': getVal('#updatedAdRate')
+                'currentPrice': getVal('#price2')
             };
+            postData = getPricingPostData2(postData);
             setJson('#step6Post', postData);
             $.ajax({
                 url: getVal('#apiUrl') + '/api/v1/ad/' + getVal('#adId') + '/',
@@ -290,6 +408,52 @@
                 },
                 complete: function(xhr, textStatus) {
                     setText('#step6Code', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        incomingPayments: function () {
+            setText('#step7Header', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'))
+            $.ajax({
+                url: getVal('#apiUrl') + '/api/v1/incomingOrders/',
+                beforeSend: setRequestHeader,
+                method: 'GET',
+                success: function(data) {
+                    setJson('#step7Response', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#step7Code', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        confirm: function () {
+            var confirmUrl = getVal('#apiUrl') + '/api/v1/incomingOrders/' + getVal('#adId') + '/confirmDeposit/';
+            setText('#confirmHeader', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
+            setText('#confirmUrl', 'POST ' + confirmUrl);
+            $.ajax({
+                url: confirmUrl,
+                beforeSend: setRequestHeader,
+                method: 'POST',
+                success: function(data) {
+                    setJson('#confirmResponse', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#confirmCode', 'RESPONSE '+xhr.status+' '+textStatus);
+                }
+            });
+        },
+        deny: function () {
+            var denyUrl = getVal('#apiUrl') + '/api/v1/incomingOrders/' + getVal('#adId') + '/invalidateDeposit/';
+            setText('#confirmHeader', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
+            setText('#confirmUrl', 'POST ' + denyUrl);
+            $.ajax({
+                url: denyUrl,
+                beforeSend: setRequestHeader,
+                method: 'POST',
+                success: function(data) {
+                    setJson('#confirmResponse', data);
+                },
+                complete: function(xhr, textStatus) {
+                    setText('#confirmCode', 'RESPONSE '+xhr.status+' '+textStatus);
                 }
             });
         },
@@ -312,7 +476,6 @@
             setText('#step0Url', 'POST '+reqUrl);
             var postData = {
                 'publisherId': getVal('#publisherId'),
-                'phone': getVal('#phone'),
                 'usdAmount': getVal('#amount'),
                 'crypto': getCrypto(),
                 'bank': getVal('#banks'),
@@ -458,7 +621,11 @@
             'adCreate',
             'sendSms',
             'verifyAd',
+            'getBalance',
+            'getDeposits',
             'updateAdRate',
+            'incomingPayments',
+            'confirm',
             'getBanks',
             'discovery',
             'getOffers',
@@ -471,6 +638,8 @@
         for (var i=0;i<clickHandlers.length;i++){
             $('#'+clickHandlers[i]+'Btn').click(actions[clickHandlers[i]]);
         }
+        $('#dynamicPricingCheckbox').change(dynamicPricingToggle);
+        $('#dynamicPricingCheckbox2').change(dynamicPricingToggle2);
         var phone = initPhone();
         setVal('#phone', '+1'+phone);
         setVal('#deviceCode', phone+phone+phone+phone+phone);
