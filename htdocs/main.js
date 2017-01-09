@@ -476,7 +476,6 @@
             setText('#step0Url', 'POST '+reqUrl);
             var postData = {
                 'publisherId': getVal('#publisherId'),
-                'phone': getVal('#phone'),
                 'usdAmount': getVal('#amount'),
                 'crypto': getCrypto(),
                 'bank': getVal('#banks'),

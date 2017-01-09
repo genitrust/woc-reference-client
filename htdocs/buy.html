@@ -56,16 +56,12 @@
                 </div>
             </div>
         </div>
-        <h1>Step 0: Discovery</h1>
+        <h1>Step 0: Search &amp; Discovery</h1>
         <div class="row">
             <div class="col-md-3">
                 <div class="form-group">
-                    <label for="publisherId">Publisher Id: <small class="text-muted">(optional)</small></label>
+                    <label for="publisherId">Publisher Id: <small class="text-muted">(required to receive affiliate commissions)</small></label>
                     <input id="publisherId" name="publisherId" type="text" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label for="phone">Phone:</label>
-                    <input id="phone" name="phone" type="text" class="form-control" value="+133177788" />
                 </div>
                 <div class="form-group">
                     <label for="email">Zip:</label>
@@ -128,6 +124,10 @@
         <div class="row">
             <div class="col-md-3">
                 <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input id="phone" name="phone" type="text" class="form-control" value="+133177788" />
+                </div>
+                <div class="form-group">
                     <label for="deviceName">Device Name:</label>
                     <input id="deviceName" name="deviceName" type="text" class="form-control" value="Ref Client" />
                 </div>
@@ -150,7 +150,7 @@
             <div class="col-md-9">
                 <div class="col-md-6">
                     <pre>
-                        <p id="step2Header" style="display:none;">HEADER X-Coins-Api-Token: </p>
+                        <p id="step2Header">HEADER X-Coins-Api-Token: </p>
                         <p id="step2Url">POST http://dev.geni.to:8001/api/v1/holds/</p>
                         <p id="step2Post"></p>
                     </pre>
