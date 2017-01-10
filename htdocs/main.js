@@ -1,5 +1,5 @@
 (function() {
-    var banks, payFields, dynamicFields;
+    var banks, payFields, dynamicFields, coords;
     var defaultPayFields = {
         payFields: [
             { "name": "name", "label": "Name on Account", "displaySort": 0 },
@@ -36,6 +36,9 @@
         if (id)
             return id.substring(7);
         return false;
+    }
+    function savePosition(position) {
+        coords = JSON.stringify({latitude: position.coords.latitude, longitude: position.coords.longitude});
     }
     function displayRecievingOptions(options, offers) {
         $('#receivingOptionsList').html("");
@@ -113,7 +116,7 @@
     function orderPayFields(payFields){
         var ordered = _.orderBy(payFields.payFields, 'displaySort', 'asc');
         var confirms = [];
-        _.each(payFields.payFields, function(payField){
+        _.each(ordered, function(payField){
             confirms.push(payField);
             var confirm = _.find(payFields.confirmFields, function(o) { return o.name == payField.name; });
             if (confirm){
@@ -125,7 +128,7 @@
     function orderDynamicFields(payFields){
         var ordered = _.orderBy(payFields.dynamicFields, 'displaySort', 'asc');
         var confirms = [];
-        _.each(payFields.dynamicFields, function(payField){
+        _.each(ordered, function(payField){
             confirms.push(payField);
             var confirm = _.find(payFields.confirmFields, function(o) { return o.name == payField.name; });
             if (confirm){
@@ -181,6 +184,8 @@
         } else {
             postData.dynamicPrice = false;
             postData.currentPrice = getVal('#price2');
+            postData.minPayment = getVal('#minPayment2');
+            postData.maxPayment = getVal('#maxPayment2');
         }
         return postData;
     }
@@ -426,7 +431,7 @@
             });
         },
         confirm: function () {
-            var confirmUrl = getVal('#apiUrl') + '/api/v1/incomingOrders/' + getVal('#adId') + '/confirmDeposit/';
+            var confirmUrl = getVal('#apiUrl') + '/api/v1/incomingOrders/' + getVal('#orderId') + '/confirmDeposit/';
             setText('#confirmHeader', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
             setText('#confirmUrl', 'POST ' + confirmUrl);
             $.ajax({
@@ -442,7 +447,7 @@
             });
         },
         deny: function () {
-            var denyUrl = getVal('#apiUrl') + '/api/v1/incomingOrders/' + getVal('#adId') + '/invalidateDeposit/';
+            var denyUrl = getVal('#apiUrl') + '/api/v1/incomingOrders/' + getVal('#orderId') + '/invalidateDeposit/';
             setText('#confirmHeader', 'HEADER X-Coins-Api-Token: '+getVal('#authToken'));
             setText('#confirmUrl', 'POST ' + denyUrl);
             $.ajax({
@@ -471,11 +476,20 @@
                 }
             });
         },
+        geolocation: function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(savePosition);
+            }else{
+                setText('#geoError', 'No browser geolocation available.');
+            }
+        },
         discovery: function () {
             var reqUrl = getVal('#apiUrl')+'/api/v1/discoveryInputs/';
             setText('#step0Url', 'POST '+reqUrl);
             var postData = {
                 'publisherId': getVal('#publisherId'),
+                'cryptoAddress': getVal('#cryptoAddress'),
+                'browserLocation': coords,
                 'usdAmount': getVal('#amount'),
                 'crypto': getCrypto(),
                 'bank': getVal('#banks'),
@@ -615,6 +629,7 @@
     function init() {
         $('[data-toggle="tooltip"]').tooltip();
         var clickHandlers = [
+            'geolocation',
             'getAuthToken',
             'authUser',
             'getReceivingOptions',
