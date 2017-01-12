@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
 <head>
     <title>WOC DASH API Reference Client</title>
@@ -12,7 +13,7 @@
                 <a class="navbar-brand" href="/">WOC API <sup><small>DEMO</small></sup></a>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="/buy.html">Buy Crypto</a></li>
+                <li><a href="/buying.html">Buy Crypto</a></li>
                 <li class="active"><a href="#">Sell Crypto</a></li>
             </ul>
             <ul class="nav navbar-nav">
@@ -533,20 +534,20 @@
                         <select class="form-control" id="secondaryMarket2"></select>
                     </div>
                     <div class="form-group">
-                        <label for="minPayment2">Minimum Payment:</label>
-                        <input id="minPayment2" class="form-control" value="10" />
-                    </div>
-                    <div class="form-group">
-                        <label for="maxPayment2">Maximum Payment:</label>
-                        <input id="maxPayment2" class="form-control" value="1000" />
-                    </div>
-                    <div class="form-group">
                         <label for="sellerFee2">Seller Fee</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="sellerFee2" placeholder="Seller Fee">
                             <div class="input-group-addon">%</div>
                         </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="minPayment2">Minimum Payment:</label>
+                    <input id="minPayment2" class="form-control" value="10" />
+                </div>
+                <div class="form-group">
+                    <label for="maxPayment2">Maximum Payment:</label>
+                    <input id="maxPayment2" class="form-control" value="1000" />
                 </div>
                 <br/>
                 <button class="btn btn-block btn-primary btn-lg" id="updateAdRateBtn">Update Ad Rate</button>
@@ -590,13 +591,17 @@
         <h1>* Confirm Payment</h1>
         <div class="row">
             <div class="col-md-3">
+                <div class="form-group">
+                    <label for="orderId">Order ID:</label>
+                    <input id="orderId" class="form-control" />
+                </div>
                 <button class="btn btn-block btn-primary" id="confirmBtn">Confirm Payment</button>
             </div>
             <div class="col-md-9">
                 <div class="col-md-6">
                     <pre>
                         <p id="confirmHeader">HEADER X-Coins-Api-Token: </p>
-                        <p id="confirmUrl">POST http://woc.reference.genitrust.com/api/v1/incomingOrders/&lt;adId&gt;/confirmDeposit/</p>
+                        <p id="confirmUrl">POST http://woc.reference.genitrust.com/api/v1/incomingOrders/&lt;orderId&gt;/confirmDeposit/</p>
                         <p id="confirmPost"></p>
                     </pre>
                 </div>
@@ -617,7 +622,7 @@
                 <div class="col-md-6">
                     <pre>
                         <p id="denyHeader">HEADER X-Coins-Api-Token: </p>
-                        <p id="denyUrl">POST http://woc.reference.genitrust.com/api/v1/incomingOrders/&lt;adId&gt;/invalidateDeposit/</p>
+                        <p id="denyUrl">POST http://woc.reference.genitrust.com/api/v1/incomingOrders/&lt;orderId&gt;/invalidateDeposit/</p>
                         <p id="denyPost"></p>
                     </pre>
                 </div>

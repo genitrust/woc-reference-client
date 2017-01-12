@@ -1,4 +1,4 @@
-
+<!doctype html>
 <html>
 <head>
     <title>WOC DASH API Reference Client</title>
@@ -14,7 +14,7 @@
             </div>
             <ul class="nav navbar-nav">
                 <li class="active"><a href="#">Buy Crypto</a></li>
-                <li><a href="/sell.html">Sell Crypto</a></li>
+                <li><a href="/selling.html">Sell Crypto</a></li>
             </ul>
             <ul class="nav navbar-nav">
                 <li>
@@ -59,9 +59,15 @@
         <h1>Step 0: Search &amp; Discovery</h1>
         <div class="row">
             <div class="col-md-3">
+                <button class="btn btn-block btn-primary" id="geolocationBtn">Get Geo Location</button>
+                <p class="text-danger" id="geoError"></p>
                 <div class="form-group">
                     <label for="publisherId">Publisher Id: <small class="text-muted">(required to receive affiliate commissions)</small></label>
                     <input id="publisherId" name="publisherId" type="text" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="cryptoAddress">Crypto Address: <small class="text-muted">(optional)</small></label>
+                    <input id="cryptoAddress" type="text" class="form-control" />
                 </div>
                 <div class="form-group">
                     <label for="email">Zip:</label>
