@@ -305,12 +305,10 @@ Response is Status 200:
 The response with 201 will not be the newly created Ad object, the response will be an advertisement that was created sometime in the past by a device for this phone number. For example,
 {
 }
-DEVELOPER NOTE: consider returning the name of the device that created this! If no device, say that it was created on Wall of Coins . com.
+
 Things are "OK"; however, the advertisement was not created. Instead, this user has a previous advertisement already in the system. Before their new advertisement can be created by re-sending the POST /api/adcreate/ request, the API developer must give the end user a chance to:
 Review the old Advertisement to determine if they want to verify it, or
 Delete the old Advertisement.
-DEVELOPER NOTE: we need a function to "DELETE" advertisements. The "deleted" flag will be True :)
-DEVELOPER NOTE: how about the server only makes the user verify the advertisement if it was created within the last 48 hours?
 #### Status 301: Redirect
 To get a positive response status, be sure that you have the "/" slash at the end of the API endpoint URL!
 #### Status 400: Bad Request
@@ -337,9 +335,6 @@ Response:
 }
 Response notes:
 __CASH_CODE - this parameter is only available while you're working with the Reference server. This is the "Cash Code" that was SMS'd to the end user. You will need to ask the user to input this code into your application so you can send the code in your next API call. The next API call verifies the advertisement, supplying you with a crypto address that will allow the end user to fund their advertisement.
-### GET /api/v1/fiatAccount ?
-What call will retrieve bank account information? Or information on a specific bank account belonging to the user?
-DEVELOPER NOTE: we really need an endpoint where people can get a list of the Cash Accounts / Fiat Accounts!
 ### GET /api/v1/ad/
 Requires X-Coins-Api-Token header.
 Example Request:
@@ -384,7 +379,6 @@ Response:
 Response notes:
 When the advertisement has not been verified by the SMS Cash Code, the funding address will not be available, and the first character of the funding address property will then start with an opening parenthesis "(".
 "0E-8" is scientific notation for the number "0".
-DEVELOPER NOTE: these scientific notation items should not be in scientific notation. Use Decimal notation of 0.00000000 or 0. Consider using raw units?
 ### POST /api/verifyAd/
 HEADER X-Coins-Api-Token Required!
 Parameters:
@@ -425,7 +419,6 @@ sellerFee: (required if using a dynamic price) this is the percentage. For 4%, u
 minPayment: the minimum fiat payment to purchase coins from the advertisement. Use 0 to specify no minimum.
 maxPayment: the maximum fiat payment to purchase coins from the advertisement. Use 0 to specify no maximum.
 userEnabled: this allows the end user to enable/disable the ability for buyers to purchase coins from their advertisement. This is used as a temporary way to "pause" their advertisement.
-DEVELOPER NOTE: people can select markets that follow BITCOIN prices. Should we allow this? probably... it will make things more fun :)
 Example Request:
 HEADER X-Coins-Api-Token: YXV0aDoxMjc4NzoxNDgzNTg3NzQ0fDY5YmE5MzU4ZTVhN2EzNDYzNTM1YTQ1NzMwZDEwNjcwMGZiM2U3MTU=
 
