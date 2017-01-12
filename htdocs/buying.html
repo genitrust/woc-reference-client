@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>WOC DASH API Reference Client</title>
+    <title>WOC API Reference Client</title>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -13,13 +13,8 @@
                 <a class="navbar-brand" href="/">WOC API <sup><small>DEMO</small></sup></a>
             </div>
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Buy Crypto</a></li>
-                <li><a href="/selling.html">Sell Crypto</a></li>
-            </ul>
-            <ul class="nav navbar-nav">
-                <li>
-                    <input id="crypto" checked type="checkbox" data-toggle="toggle" data-on="DASH" data-off="BTC">
-                </li>
+                <li class="active"><a href="#">Buy Bitcoin</a></li>
+                <li><a href="/selling.html">Sell Bitcoin</a></li>
             </ul>
             <form class="navbar-form navbar-left">
                 <div class="form-group" data-toggle="tooltip" data-placement="bottom" title="The base URL of the API">
@@ -66,7 +61,7 @@
                     <input id="publisherId" name="publisherId" type="text" class="form-control" />
                 </div>
                 <div class="form-group">
-                    <label for="cryptoAddress">Crypto Address: <small class="text-muted">(optional)</small></label>
+                    <label for="cryptoAddress">Bitcoin Address: <small class="text-muted">(optional)</small></label>
                     <input id="cryptoAddress" type="text" class="form-control" />
                 </div>
                 <div class="form-group">
@@ -208,7 +203,7 @@
                 <div class="col-md-6">
                     <pre>
                         <p id="step4Header">HEADER X-Coins-Api-Token: </p>
-                        <p id="step4Url">POST http://woc.reference.genitrust.com/api/v1/orders/&lt;holdId&gt;/confirmDeposit/</p>
+                        <p id="step4Url">POST http://woc.reference.genitrust.com/api/v1/orders/&lt;orderId&gt;/confirmDeposit/</p>
                         <p id="step4Post"></p>
                     </pre>
                 </div>
@@ -229,7 +224,7 @@
                 <div class="col-md-6">
                     <pre>
                         <p id="cancelHeader">HEADER X-Coins-Api-Token: </p>
-                        <p id="cancelUrl">DELETE http://woc.reference.genitrust.com/api/v1/orders/&lt;holdId&gt;/</p>
+                        <p id="cancelUrl">DELETE http://woc.reference.genitrust.com/api/v1/orders/&lt;orderId&gt;/</p>
                         <p id="cancelPost"></p>
                     </pre>
                 </div>
@@ -264,7 +259,7 @@
     </div>
     <footer class="footer">
         <div class="container-fluid">
-            <p class="text-muted">&copy; 2014-2016 - Brought to you by Genitrust, Inc.</p>
+            <p class="text-muted">&copy; 2014-2017 - Brought to you by Genitrust, Inc.</p>
         </div>
     </footer>
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>

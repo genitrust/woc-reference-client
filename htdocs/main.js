@@ -29,7 +29,7 @@
         return $('#dynamicPricingCheckbox2').is(':checked');
     }
     function getCrypto() {
-        return ($('#crypto').is(':checked')?'DASH':'BTC');
+        return 'BTC';
     }
     function getReceivingOption() {
         var id = $('#receivingOptionsList .active').attr('id');
